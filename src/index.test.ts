@@ -4,10 +4,10 @@ import { jest } from '@jest/globals';
                                                                                                                         
  // Create a mock axios instance                                                                                        
  const mockAxios = {                                                                                                    
-   get: jest.fn().mockResolvedValue({}),                                                                                                      
-   post: jest.fn().mockResolvedValue({}),                                                                                                     
-   put: jest.fn().mockResolvedValue({}),                                                                                                      
-   delete: jest.fn().mockResolvedValue({})                                                                                                    
+   get: jest.fn<Promise<any>, any[]>().mockResolvedValue({}),                                                                                                      
+   post: jest.fn<Promise<any>, any[]>().mockResolvedValue({}),                                                                                                     
+   put: jest.fn<Promise<any>, any[]>().mockResolvedValue({}),                                                                                                      
+   delete: jest.fn<Promise<any>, any[]>().mockResolvedValue({})                                                                                                    
  };                  
  
  jest.mock('json-rules-engine');
@@ -59,8 +59,8 @@ import { jest } from '@jest/globals';
    describe('externalApiCall fact', () => {                                                                             
      const fact = examplePlugin.facts![0];     
      const mockAlmanac = {
-       factValue: jest.fn().mockResolvedValue({}),
-       addRuntimeFact: jest.fn()
+       factValue: jest.fn<Promise<any>, any[]>().mockResolvedValue({}),
+       addRuntimeFact: jest.fn<void, any[]>()
      };                                                                           
                                                                                                                         
      beforeEach(() => {                                                                                                 
