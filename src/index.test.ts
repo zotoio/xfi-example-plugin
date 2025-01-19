@@ -4,9 +4,9 @@ import axios, { AxiosInstance } from 'axios';
 
 // Setup axios mock
 const mockAxios = {
-  get: jest.fn(),
-  post: jest.fn(),
-  create: jest.fn()
+  get: jest.fn<Promise<any>, any[]>(),
+  post: jest.fn<Promise<any>, any[]>(),
+  create: jest.fn<AxiosInstance, any[]>()
 };
 
 jest.mock('axios', () => ({
