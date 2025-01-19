@@ -104,5 +104,5 @@ try {
   console.error('Failed to load rules:', error);
 }
 
-export { plugin };
-export default plugin;
+export type { ExtendedXFiPlugin };
+export { plugin as default };
