@@ -105,4 +105,4 @@ try {
 }
 
 export type { ExtendedXFiPlugin };
-export { plugin as default };
+export default plugin;
