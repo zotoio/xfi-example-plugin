@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import plugin from './index';
+import plugin, { ExtendedXFiPlugin } from './index';
 
 jest.mock('axios');
 jest.mock('fs');
