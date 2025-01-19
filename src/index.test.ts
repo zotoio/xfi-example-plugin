@@ -135,7 +135,8 @@ import examplePlugin from './index';
      });                                                                                                                
                                                                                                                         
      it('should handle API call failure', async () => {                                                                 
-       mockAxios.post.mockRejectedValueOnce(new Error('API Error'));                                                    
+       const apiError = new Error('API Error');
+       mockAxios.post.mockRejectedValueOnce(apiError);                                                    
                                                                                                                         
        const testAlmanac = createMockAlmanac({
          fileData: {
@@ -143,16 +144,22 @@ import examplePlugin from './index';
          }
        });
                                                                                                                         
-       const result = await fact.fn({                                                                                   
+       const params = {                                                                                   
          regex: 'version:\\s*["\']([^"\']+)["\']',                                                                      
          url: 'https://api.example.com/test',
-         method: 'POST',
          includeValue: true                                                                            
-       }, testAlmanac);                                                                                                 
+       };
+       
+       const result = await fact.fn(params, testAlmanac);                                                                                                 
                                                                                                                         
        expect(result.success).toBe(false);                                                                              
        expect(result.error).toBe('API Error');
-       expect(result.timestamp).toBeDefined();                                                                          
+       expect(result.timestamp).toBeDefined();
+       expect(mockAxios.post).toHaveBeenCalledWith(
+         params.url,
+         { value: '1.0.0' },
+         expect.any(Object)
+       );                                                                          
      });                                                                                                                
    });                                                                                                                  
  }); 
