@@ -90,7 +90,7 @@ import examplePlugin from './index';
      });                                                                                                                
                                                                                                                         
      it('should handle successful API call', async () => {                                                              
-       const mockResponse: AxiosResponse = {
+       const mockResponse: AxiosResponse<any, any> = {
          data: { status: 'success' },
          status: 200,
          statusText: 'OK',
@@ -98,7 +98,7 @@ import examplePlugin from './index';
          config: {} as any,
          request: {}
        };                                                            
-       mockAxios.post.mockImplementationOnce(() => Promise.resolve(mockResponse));
+       mockAxios.post.mockImplementationOnce(async () => mockResponse);
        
        const testAlmanac = createMockAlmanac({
          fileData: {
@@ -135,7 +135,7 @@ import examplePlugin from './index';
      });                                                                                                                
                                                                                                                         
      it('should handle API call failure', async () => {                                                                 
-       mockAxios.post.mockImplementationOnce(() => Promise.reject(new Error('API Error')));                                                    
+       mockAxios.post.mockImplementationOnce(async () => { throw new Error('API Error'); });                                                    
                                                                                                                         
        const testAlmanac = createMockAlmanac({
          fileData: {
