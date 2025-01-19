@@ -70,25 +70,31 @@ const loadRulesFromDirectory = (dirPath: string): any[] => {
     
     const ruleFiles = files.filter(file => file.endsWith('-rule.json'));
 
-  for (const file of ruleFiles) {
-    const filePath = path.join(dirPath, file);
-    const ruleContent = fs.readFileSync(filePath, 'utf8');
-    try {
-      const rule = JSON.parse(ruleContent);
-      rules.push(rule);
-    } catch (error) {
-      console.error(`Error parsing rule file ${file}:`, error);
+    for (const file of ruleFiles) {
+      const filePath = path.join(dirPath, file);
+      const ruleContent = fs.readFileSync(filePath, 'utf8');
+      try {
+        const rule = JSON.parse(ruleContent);
+        rules.push(rule);
+      } catch (error) {
+        console.error(`Error parsing rule file ${file}:`, error);
+      }
     }
+    return rules;
+  } catch (error) {
+    console.error('Error reading rules directory:', error);
+    return rules;
   }
-  return rules;
 };
 
+// Export the interface
 export interface ExtendedXFiPlugin extends XFiPlugin {
   operators: OperatorDefn[];
   facts: FactDefn[];
   sampleRules: any[];
 }
 
+// Create the plugin instance
 const plugin: ExtendedXFiPlugin = {
   name: 'xfi-example-plugin',
   version: '1.0.0',
@@ -104,5 +110,6 @@ try {
   console.error('Failed to load rules:', error);
 }
 
+// Export both the type and the plugin instance
 export type { ExtendedXFiPlugin };
-export default plugin;
+export { plugin as default };
