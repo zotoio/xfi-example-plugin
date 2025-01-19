@@ -29,8 +29,18 @@ import { jest } from '@jest/globals';
      expect(examplePlugin).toHaveProperty('version', '1.0.0');                                                            
      expect(examplePlugin.facts).toHaveLength(1);                                                                         
      expect(examplePlugin.operators).toHaveLength(1);                                                                     
-     expect(examplePlugin.sampleRules).toHaveLength(1);                                                                   
+     expect(Array.isArray(examplePlugin.sampleRules)).toBe(true);                                                   
    });                                                                                                                  
+
+   describe('loadRulesFromDirectory', () => {
+     it('should load rules from json files', () => {
+       expect(examplePlugin.sampleRules.length).toBeGreaterThan(0);
+       const rule = examplePlugin.sampleRules[0];
+       expect(rule).toHaveProperty('name');
+       expect(rule).toHaveProperty('conditions');
+       expect(rule).toHaveProperty('event');
+     });
+   });
                                                                                                                         
    describe('regexExtract operator', () => {                                                                            
      const operator = examplePlugin.operators![0];                                                                        

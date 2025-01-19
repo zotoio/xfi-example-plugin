@@ -55,46 +55,25 @@ const externalCallFact: FactDefn = {
   }
 };
 
-// Sample rule that uses the new fact and operator
-const sampleRules = [{
-  name: "externalApiCheck-iterative",
-  conditions: {
-    all: [
-      {
-        fact: "repoFileAnalysis",
-        params: {
-          checkPattern: "version:\\s*['\"]([^'\"]+)['\"]",
-          resultFact: "versionMatch"
-        },
-        operator: "regexExtract",
-        value: true
-      },
-      {
-        fact: "externalApiCall",
-        params: {
-          regex: "version:\\s*['\"]([^'\"]+)['\"]",
-          url: "https://api.example.com/validate-version",
-          method: "POST",
-          includeValue: true,
-          headers: {
-            "Content-Type": "application/json"
-          }
-        },
-        operator: "equal",
-        value: { success: true }
-      }
-    ]
-  },
-  event: {
-    type: "warning",
-    params: {
-      message: "External API validation failed",
-      details: {
-        fact: "externalApiCall"
-      }
+const loadRulesFromDirectory = (dirPath: string): any[] => {
+  const rules: any[] = [];
+  const ruleFiles = fs.readdirSync(dirPath)
+    .filter(file => file.endsWith('-rule.json'));
+
+  for (const file of ruleFiles) {
+    const filePath = path.join(dirPath, file);
+    const ruleContent = fs.readFileSync(filePath, 'utf8');
+    try {
+      const rule = JSON.parse(ruleContent);
+      rules.push(rule);
+    } catch (error) {
+      console.error(`Error parsing rule file ${file}:`, error);
     }
   }
-}];
+  return rules;
+};
+
+const sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
 
 const plugin: XFiPlugin = {
   name: 'xfi-example-plugin',
