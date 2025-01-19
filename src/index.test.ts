@@ -89,10 +89,11 @@ import examplePlugin from './index';
                                                                                                                         
      it('should handle successful API call', async () => {                                                              
        const mockResponse = { data: { status: 'success' } };                                                            
-       mockAxios.post.mockResolvedValueOnce(mockResponse);                                                             
-        mockAlmanac.factValue.mockResolvedValueOnce({                                                                       
-          fileContent: 'version: "1.0.0"'                                                                              
-        });
+       mockAxios.post.mockResolvedValueOnce(mockResponse);
+       
+       const testAlmanac = createMockAlmanac({
+         fileContent: 'version: "1.0.0"'
+       });
                                                                                                                
        const params = {                                                                                                 
          regex: 'version:\\s*["\']([^"\']+)["\']',                                                                      
@@ -101,7 +102,7 @@ import examplePlugin from './index';
          includeValue: true                                                                                             
        };                                                                                                               
                                                                                                                         
-       const result = await fact.fn(params, mockAlmanac);                                                               
+       const result = await fact.fn(params, testAlmanac);                                                               
        expect(result.success).toBe(true);                                                                               
        expect(result.extractedValue).toBe('1.0.0');                                                                     
        expect(result.apiResponse).toEqual(mockResponse.data);                                                           
@@ -129,8 +130,9 @@ import examplePlugin from './index';
                                                                                                                         
        const result = await fact.fn({                                                                                   
          regex: 'version:\\s*["\']([^"\']+)["\']',                                                                      
-         url: 'https://api.example.com/test'                                                                            
-       }, mockAlmanac);                                                                                                 
+         url: 'https://api.example.com/test',
+         method: 'POST'                                                                            
+       }, testAlmanac);                                                                                                 
                                                                                                                         
        expect(result.success).toBe(false);                                                                              
        expect(result.error).toBe('API Error');                                                                          
