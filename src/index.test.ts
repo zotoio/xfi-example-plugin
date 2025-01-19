@@ -88,7 +88,13 @@ import examplePlugin from './index';
      });                                                                                                                
                                                                                                                         
      it('should handle successful API call', async () => {                                                              
-       const mockResponse = { data: { status: 'success' } };                                                            
+       const mockResponse = {
+         data: { status: 'success' },
+         status: 200,
+         statusText: 'OK',
+         headers: {},
+         config: {} as any
+       };                                                            
        mockAxios.post.mockImplementationOnce(() => Promise.resolve(mockResponse));
        
        const testAlmanac = createMockAlmanac({
