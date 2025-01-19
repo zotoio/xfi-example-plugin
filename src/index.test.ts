@@ -4,10 +4,10 @@ import axios, { AxiosInstance } from 'axios';
 
 // Setup axios mock
 const mockAxios = {
-  get: jest.fn<Promise<any>, any[]>(),
-  post: jest.fn<Promise<any>, any[]>(),
-  create: jest.fn<AxiosInstance, any[]>()
-};
+  get: jest.fn(),
+  post: jest.fn(),
+  create: jest.fn()
+} as jest.Mocked<typeof axios>;
 
 jest.mock('axios', () => ({
   __esModule: true,
