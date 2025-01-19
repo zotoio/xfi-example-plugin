@@ -2,17 +2,20 @@ import { jest } from '@jest/globals';
 import { Almanac, Fact } from 'json-rules-engine';
 import axios, { AxiosInstance } from 'axios';
 
-jest.mock('axios');
-jest.mock('json-rules-engine');
+// Setup axios mock
+const mockAxios = {
+  get: jest.fn(),
+  post: jest.fn(),
+  create: jest.fn()
+};
 
-const mockAxios = jest.mocked(axios);
-
-// Mock the entire axios module                                                                                        
-jest.mock('axios', () => ({                                                                                            
-  __esModule: true,                                                                                                    
-  default: mockAxios,                                                                                                  
-  create: () => mockAxios                                                                                              
+jest.mock('axios', () => ({
+  __esModule: true,
+  default: mockAxios,
+  create: () => mockAxios
 }));
+
+jest.mock('json-rules-engine');
 
 // Create mock Almanac factory
 const createMockAlmanac = (factValue: Record<string, any> = { data: {} }) => {
