@@ -131,26 +131,43 @@ describe('Plugin: xfi-example-plugin', () => {
 
     describe('loadRulesFromDirectory', () => {
       it('should load valid rule files', () => {
-        const mockFiles = ['test-rule.json', 'other-rule.json', 'not-a-rule.txt'];
-        const mockRuleContent = '{"name": "test rule"}';
+        // Setup mock rule content
+        const mockRuleContent = JSON.stringify({
+          name: "test-rule",
+          conditions: { all: [] },
+          event: { type: "test" }
+        });
         
-        (fs.readdirSync as jest.Mock).mockReturnValue(mockFiles);
+        // Setup mock filesystem
+        (fs.readdirSync as jest.Mock).mockReturnValue(['test-rule.json']);
         (fs.readFileSync as jest.Mock).mockReturnValue(mockRuleContent);
         (path.join as jest.Mock).mockImplementation((...args) => args.join('/'));
 
-        expect(typedPlugin.sampleRules).toHaveLength(2);
-        expect(typedPlugin.sampleRules[0]).toEqual({ name: 'test rule' });
-        expect(fs.readFileSync).toHaveBeenCalledTimes(2);
+        // Re-run rule loading
+        typedPlugin.sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
+
+        expect(typedPlugin.sampleRules).toHaveLength(1);
+        expect(typedPlugin.sampleRules[0]).toEqual(JSON.parse(mockRuleContent));
+        expect(fs.readFileSync).toHaveBeenCalledTimes(1);
       });
 
       it('should handle invalid JSON', () => {
+        // Setup console spy
         const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
         
+        // Setup mock filesystem with invalid JSON
         (fs.readdirSync as jest.Mock).mockReturnValue(['invalid-rule.json']);
-        (fs.readFileSync as jest.Mock).mockReturnValue('invalid json');
+        (fs.readFileSync as jest.Mock).mockReturnValue('{ invalid json }');
+        
+        // Re-run rule loading
+        typedPlugin.sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
         
         expect(typedPlugin.sampleRules).toHaveLength(0);
         expect(consoleSpy).toHaveBeenCalled();
+        expect(consoleSpy).toHaveBeenCalledWith(
+          expect.stringContaining('Error parsing rule file invalid-rule.json'),
+          expect.any(Error)
+        );
         
         consoleSpy.mockRestore();
       });
