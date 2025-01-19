@@ -1,165 +1,170 @@
-import { jest } from '@jest/globals';
-import { Almanac, Fact } from 'json-rules-engine';
-import axios, { AxiosInstance } from 'axios';
+import axios from 'axios';
+import * as fs from 'fs';
+import * as path from 'path';
+import plugin from './index';
 
-import { AxiosResponse } from 'axios';
+jest.mock('axios');
+jest.mock('fs');
+jest.mock('path');
 
-// Setup axios mock
-const mockAxios = jest.fn() as unknown as jest.Mocked<typeof axios>;
-Object.assign(mockAxios, {
-  get: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
-  post: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
-  create: jest.fn().mockImplementation(() => ({
-    get: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
-    post: jest.fn().mockImplementation(() => Promise.resolve({ data: {} }))
-  })),
-  request: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
-  defaults: {},
-  interceptors: {
-    request: { use: jest.fn(), eject: jest.fn() },
-    response: { use: jest.fn(), eject: jest.fn() }
-  }
+describe('regexExtractOperator', () => {
+  const operator = plugin.operators[0];
+
+  it('should return false for invalid input', () => {
+    expect(operator.fn(null, '.*')).toBe(false);
+    expect(operator.fn({}, '.*')).toBe(false);
+    expect(operator.fn({ result: null }, '.*')).toBe(false);
+  });
+
+  it('should return true for non-empty result array', () => {
+    expect(operator.fn({ result: ['match'] }, '.*')).toBe(true);
+  });
+
+  it('should return false for empty result array', () => {
+    expect(operator.fn({ result: [] }, '.*')).toBe(false);
+  });
 });
 
-jest.mock('axios', () => ({
-  __esModule: true,
-  default: mockAxios,
-  create: () => mockAxios
-}));
+describe('externalCallFact', () => {
+  const fact = plugin.facts[0];
+  
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-jest.mock('json-rules-engine');
+  it('should handle missing file data', async () => {
+    const almanac = {
+      factValue: jest.fn().mockResolvedValue(null)
+    };
 
-// Create mock Almanac factory
-const createMockAlmanac = (factValue: Record<string, any> = { data: {} }) => {
-  const factValueFn = jest.fn().mockImplementation(async () => factValue);
-  const mock = {
-    factValue: factValueFn,
-    addRuntimeFact: jest.fn().mockReturnThis(),
-    addFact: jest.fn().mockReturnThis()
-  };
-  return mock as unknown as jest.Mocked<Almanac>;
-};
+    const result = await fact.fn({}, almanac);
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('No file data available');
+    expect(result.timestamp).toBeDefined();
+  });
 
-import examplePlugin from './index';
-                                                                                                                        
- describe('examplePlugin', () => {                                                                                        
-   beforeEach(() => {                                                                                                   
-     jest.clearAllMocks();                                                                                              
-   });                                                                                                                  
-                                                                                                                        
-   it('should have correct structure', () => {                                                                          
-     expect(examplePlugin).toHaveProperty('name', 'xfi-example-plugin');                                                  
-     expect(examplePlugin).toHaveProperty('version', '1.0.0');                                                            
-     expect(examplePlugin.facts).toHaveLength(1);                                                                         
-     expect(examplePlugin.operators).toHaveLength(1);                                                                     
-     expect(Array.isArray(examplePlugin.sampleRules)).toBe(true);                                                   
-   });                                                                                                                  
+  it('should handle successful API call with extracted value', async () => {
+    const mockResponse = { data: { status: 'success' } };
+    (axios.post as jest.Mock).mockResolvedValue(mockResponse);
 
-   describe('loadRulesFromDirectory', () => {
-     it('should load rules from json files', () => {
-       expect(examplePlugin.sampleRules.length).toBeGreaterThan(0);
-       const rule = examplePlugin.sampleRules[0];
-       expect(rule).toHaveProperty('name');
-       expect(rule).toHaveProperty('conditions');
-       expect(rule).toHaveProperty('event');
-     });
-   });
-                                                                                                                        
-   describe('regexExtract operator', () => {                                                                            
-     const operator = examplePlugin.operators![0];                                                                        
-                                                                                                                        
-     it('should return false for invalid input', () => {                                                                
-       expect(operator.fn(undefined, 'pattern')).toBe(false);                                                           
-       expect(operator.fn({}, 'pattern')).toBe(false);                                                                  
-       expect(operator.fn({ result: null }, 'pattern')).toBe(false);                                                    
-     });                                                                                                                
-                                                                                                                        
-     it('should return true when matches are found', () => {                                                            
-       expect(operator.fn({ result: ['match'] }, 'pattern')).toBe(true);                                                
-     });                                                                                                                
-   });                                                                                                                  
-                                                                                                                        
-   describe('externalApiCall fact', () => {                                                                             
-     const fact = examplePlugin.facts![0];     
-     const mockAlmanac = createMockAlmanac();
-                                                                                                                        
-     beforeEach(() => {                                                                                                 
-       mockAxios.get.mockClear();                                                                                       
-       mockAxios.post.mockClear();  
-                                                                                           
-     });                                                                                                                
-                                                                                                                        
-     it('should handle successful API call', async () => {                                                              
-       const mockResponse: AxiosResponse = {
-         data: { status: 'success' },
-         status: 200,
-         statusText: 'OK',
-         headers: {},
-         config: {} as any,
-         request: {}
-       };                                                            
-       mockAxios.post.mockResolvedValueOnce(mockResponse);
-       
-       const testAlmanac = createMockAlmanac({
-         fileData: {
-           fileContent: 'version: "1.0.0"'
-         }
-       });
-                                                                                                               
-       const params = {                                                                                                 
-         regex: 'version:\\s*["\']([^"\']+)["\']',                                                                      
-         url: 'https://api.example.com/test',                                                                           
-         method: 'POST',                                                                                                
-         includeValue: true                                                                                             
-       };                                                                                                               
-                                                                                                                        
-       const result = await fact.fn(params, testAlmanac);                                                               
-       expect(result.success).toBe(true);                                                                               
-       expect(result.extractedValue).toBe('1.0.0');                                                                     
-       expect(result.apiResponse).toEqual(mockResponse.data);                                                           
-     });                                                                                                                
-                                                                                                                        
-     it('should handle regex match failure', async () => {                                                              
-       const testAlmanac = createMockAlmanac({
-         fileData: {
-           fileContent: 'no match here'
-         }
-       });
-                                                                                                                        
-       const result = await fact.fn({                                                                                   
-         regex: 'version:\\s*["\']([^"\']+)["\']'                                                                       
-       }, mockAlmanac);                                                                                                 
-                                                                                                                        
-       expect(result.success).toBe(false);                                                                              
-       expect(result.reason).toBe('No match found');                                                                    
-     });                                                                                                                
-                                                                                                                        
-     it('should handle API call failure', async () => {                                                                 
-       const apiError = new Error('API Error');
-       mockAxios.post.mockRejectedValueOnce(apiError);                                                    
-                                                                                                                        
-       const testAlmanac = createMockAlmanac({
-         fileData: {
-           fileContent: 'version: "1.0.0"'
-         }
-       });
-                                                                                                                        
-       const params = {                                                                                   
-         regex: 'version:\\s*["\']([^"\']+)["\']',                                                                      
-         url: 'https://api.example.com/test',
-         includeValue: true                                                                            
-       };
-       
-       const result = await fact.fn(params, testAlmanac);                                                                                                 
-                                                                                                                        
-       expect(result.success).toBe(false);                                                                              
-       expect(result.error).toBe('API Error');
-       expect(result.timestamp).toBeDefined();
-       expect(mockAxios.post).toHaveBeenCalledWith(
-         params.url,
-         { value: '1.0.0' },
-         expect.any(Object)
-       );                                                                          
-     });                                                                                                                
-   });                                                                                                                  
- }); 
+    const almanac = {
+      factValue: jest.fn().mockResolvedValue({
+        fileContent: 'test value: 123'
+      })
+    };
+
+    const params = {
+      regex: 'value: (\\d+)',
+      url: 'http://api.example.com',
+      includeValue: true,
+      headers: { 'Content-Type': 'application/json' }
+    };
+
+    const result = await fact.fn(params, almanac);
+    
+    expect(result.success).toBe(true);
+    expect(result.extractedValue).toBe('123');
+    expect(result.apiResponse).toEqual(mockResponse.data);
+    expect(result.timestamp).toBeDefined();
+    
+    expect(axios.post).toHaveBeenCalledWith(
+      params.url,
+      { value: '123' },
+      expect.objectContaining({
+        headers: params.headers,
+        timeout: 5000
+      })
+    );
+  });
+
+  it('should handle regex match failure', async () => {
+    const almanac = {
+      factValue: jest.fn().mockResolvedValue({
+        fileContent: 'no match here'
+      })
+    };
+
+    const params = {
+      regex: 'value: (\\d+)',
+      url: 'http://api.example.com'
+    };
+
+    const result = await fact.fn(params, almanac);
+    expect(result.success).toBe(false);
+    expect(result.reason).toBe('No match found');
+  });
+
+  it('should handle API call failure', async () => {
+    (axios.post as jest.Mock).mockRejectedValue(new Error('Network error'));
+
+    const almanac = {
+      factValue: jest.fn().mockResolvedValue({
+        fileContent: 'test value: 123'
+      })
+    };
+
+    const params = {
+      regex: 'value: (\\d+)',
+      url: 'http://api.example.com'
+    };
+
+    const result = await fact.fn(params, almanac);
+    expect(result.success).toBe(false);
+    expect(result.error).toBe('Network error');
+    expect(result.timestamp).toBeDefined();
+  });
+});
+
+describe('loadRulesFromDirectory', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  it('should load valid rule files', () => {
+    const mockFiles = ['test-rule.json', 'other-rule.json', 'not-a-rule.txt'];
+    const mockRuleContent = '{"name": "test rule"}';
+    
+    (fs.readdirSync as jest.Mock).mockReturnValue(mockFiles);
+    (fs.readFileSync as jest.Mock).mockReturnValue(mockRuleContent);
+    (path.join as jest.Mock).mockImplementation((...args) => args.join('/'));
+
+    const rules = plugin.sampleRules;
+    
+    expect(rules).toHaveLength(2); // Only .json files
+    expect(rules[0]).toEqual({ name: 'test rule' });
+    expect(fs.readFileSync).toHaveBeenCalledTimes(2);
+  });
+
+  it('should handle invalid JSON in rule files', () => {
+    const mockFiles = ['invalid-rule.json'];
+    const mockRuleContent = 'invalid json';
+    
+    (fs.readdirSync as jest.Mock).mockReturnValue(mockFiles);
+    (fs.readFileSync as jest.Mock).mockReturnValue(mockRuleContent);
+    (path.join as jest.Mock).mockImplementation((...args) => args.join('/'));
+
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+    
+    const rules = plugin.sampleRules;
+    
+    expect(rules).toHaveLength(0);
+    expect(consoleSpy).toHaveBeenCalled();
+    
+    consoleSpy.mockRestore();
+  });
+});
+
+describe('plugin configuration', () => {
+  it('should export correct plugin structure', () => {
+    expect(plugin).toMatchObject({
+      name: 'xfi-example-plugin',
+      version: '1.0.0',
+      operators: expect.any(Array),
+      facts: expect.any(Array),
+      sampleRules: expect.any(Array)
+    });
+    
+    expect(plugin.operators).toHaveLength(1);
+    expect(plugin.facts).toHaveLength(1);
+  });
+});
