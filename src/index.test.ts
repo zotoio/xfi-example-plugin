@@ -126,7 +126,8 @@ import examplePlugin from './index';
      });                                                                                                                
                                                                                                                         
      it('should handle API call failure', async () => {                                                                 
-       mockAxios.post.mockRejectedValueOnce(new Error('API Error'));                                                    
+       const error = new Error('API Error');
+       mockAxios.post.mockRejectedValueOnce(error);                                                    
                                                                                                                         
        const testAlmanac = createMockAlmanac({
          fileData: {
@@ -137,11 +138,13 @@ import examplePlugin from './index';
        const result = await fact.fn({                                                                                   
          regex: 'version:\\s*["\']([^"\']+)["\']',                                                                      
          url: 'https://api.example.com/test',
-         method: 'POST'                                                                            
+         method: 'POST',
+         includeValue: true                                                                            
        }, testAlmanac);                                                                                                 
                                                                                                                         
        expect(result.success).toBe(false);                                                                              
-       expect(result.error).toBe('API Error');                                                                          
+       expect(result.error).toBe('API Error');
+       expect(result.timestamp).toBeDefined();                                                                          
      });                                                                                                                
    });                                                                                                                  
  }); 
