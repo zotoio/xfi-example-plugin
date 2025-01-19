@@ -2,7 +2,14 @@ import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
 import plugin from './index';
-import type { XFiPlugin } from 'x-fidelity';
+import type { XFiPlugin, OperatorDefn, FactDefn } from 'x-fidelity';
+
+// Type assertion to ensure plugin properties are available
+const typedPlugin = plugin as Required<XFiPlugin> & {
+  operators: OperatorDefn[];
+  facts: FactDefn[];
+  sampleRules: any[];
+};
 
 jest.mock('axios');
 jest.mock('fs');
@@ -17,7 +24,7 @@ const createMockAlmanac = (fileContent: string | null) => ({
 
 describe('Plugin: xfi-example-plugin', () => {
   describe('regexExtract Operator', () => {
-    const { fn: regexExtract } = plugin.operators[0];
+    const { fn: regexExtract } = typedPlugin.operators[0];
 
     it.each([
       [null, '.*', false, 'null input'],
@@ -31,7 +38,7 @@ describe('Plugin: xfi-example-plugin', () => {
   });
 
   describe('externalApiCall Fact', () => {
-    const { fn: externalApiCall } = plugin.facts[0];
+    const { fn: externalApiCall } = typedPlugin.facts[0];
     
     beforeEach(() => {
       jest.clearAllMocks();
@@ -129,8 +136,8 @@ describe('Plugin: xfi-example-plugin', () => {
         (fs.readFileSync as jest.Mock).mockReturnValue(mockRuleContent);
         (path.join as jest.Mock).mockImplementation((...args) => args.join('/'));
 
-        expect(plugin.sampleRules).toHaveLength(2);
-        expect(plugin.sampleRules[0]).toEqual({ name: 'test rule' });
+        expect(typedPlugin.sampleRules).toHaveLength(2);
+        expect(typedPlugin.sampleRules[0]).toEqual({ name: 'test rule' });
         expect(fs.readFileSync).toHaveBeenCalledTimes(2);
       });
 
@@ -140,7 +147,7 @@ describe('Plugin: xfi-example-plugin', () => {
         (fs.readdirSync as jest.Mock).mockReturnValue(['invalid-rule.json']);
         (fs.readFileSync as jest.Mock).mockReturnValue('invalid json');
         
-        expect(plugin.sampleRules).toHaveLength(0);
+        expect(typedPlugin.sampleRules).toHaveLength(0);
         expect(consoleSpy).toHaveBeenCalled();
         
         consoleSpy.mockRestore();

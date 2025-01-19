@@ -87,14 +87,14 @@ const loadRulesFromDirectory = (dirPath: string): any[] => {
   }
 };
 
-// Create the plugin instance
-const plugin: XFiPlugin = {
+// Create the plugin instance with required properties
+const plugin = {
   name: 'xfi-example-plugin',
   version: '1.0.0',
   operators: [regexExtractOperator],
   facts: [externalCallFact],
-  sampleRules: []
-};
+  sampleRules: [] as any[]
+} as const;
 
 // Load rules after plugin is defined
 try {
