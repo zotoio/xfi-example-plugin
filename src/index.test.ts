@@ -4,11 +4,11 @@ import { jest } from '@jest/globals';
                                                                                                                         
  // Create a mock axios instance                                                                                        
  const mockAxios = {                                                                                                    
-   get: jest.fn<Promise<any>, any[]>().mockResolvedValue({}),                                                                                                      
-   post: jest.fn<Promise<any>, any[]>().mockResolvedValue({}),                                                                                                     
-   put: jest.fn<Promise<any>, any[]>().mockResolvedValue({}),                                                                                                      
-   delete: jest.fn<Promise<any>, any[]>().mockResolvedValue({})                                                                                                    
- };                  
+   get: jest.fn().mockResolvedValue({}),                                                                                                      
+   post: jest.fn().mockResolvedValue({}),                                                                                                     
+   put: jest.fn().mockResolvedValue({}),                                                                                                      
+   delete: jest.fn().mockResolvedValue({})                                                                                                    
+ } as jest.Mocked<typeof import('axios').default>;                  
  
  jest.mock('json-rules-engine');
                                                                                                                         
@@ -59,9 +59,9 @@ import { jest } from '@jest/globals';
    describe('externalApiCall fact', () => {                                                                             
      const fact = examplePlugin.facts![0];     
      const mockAlmanac = {
-       factValue: jest.fn<Promise<any>, any[]>().mockResolvedValue({}),
-       addRuntimeFact: jest.fn<void, any[]>()
-     };                                                                           
+       factValue: jest.fn().mockResolvedValue({}),
+       addRuntimeFact: jest.fn()
+     } as jest.Mocked<Almanac>;                                                                           
                                                                                                                         
      beforeEach(() => {                                                                                                 
        mockAxios.get.mockClear();                                                                                       
@@ -72,10 +72,9 @@ import { jest } from '@jest/globals';
      it('should handle successful API call', async () => {                                                              
        const mockResponse = { data: { status: 'success' } };                                                            
        mockAxios.post.mockResolvedValueOnce(mockResponse);                                                             
-        (mockAlmanac.factValue as jest.Mock)
-              .mockResolvedValueOnce({                                                                       
-                fileContent: 'version: "1.0.0"'                                                                              
-              });
+        mockAlmanac.factValue.mockResolvedValueOnce({                                                                       
+          fileContent: 'version: "1.0.0"'                                                                              
+        });
                                                                                                                
        const params = {                                                                                                 
          regex: 'version:\\s*["\']([^"\']+)["\']',                                                                      
