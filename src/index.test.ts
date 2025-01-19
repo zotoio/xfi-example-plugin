@@ -1,9 +1,18 @@
-import examplePlugin from './index';   
-import { Almanac, Fact } from 'json-rules-engine';                                                                                  
-import { jest } from '@jest/globals';                                                                                  
-                                                                                                                        
-// Create a mock axios instance                                                                                        
+import { jest } from '@jest/globals';
+import { Almanac, Fact } from 'json-rules-engine';
 import axios, { AxiosInstance } from 'axios';
+
+jest.mock('axios');
+jest.mock('json-rules-engine');
+
+const mockAxios = jest.mocked(axios);
+
+// Mock the entire axios module                                                                                        
+jest.mock('axios', () => ({                                                                                            
+  __esModule: true,                                                                                                    
+  default: mockAxios,                                                                                                  
+  create: () => mockAxios                                                                                              
+}));
 
 // Create mock Almanac factory
 const createMockAlmanac = (factValue: Record<string, any> = { data: {} }) => {
@@ -16,17 +25,7 @@ const createMockAlmanac = (factValue: Record<string, any> = { data: {} }) => {
   return mock as unknown as jest.Mocked<Almanac>;
 };
 
-jest.mock('axios');
-const mockAxios = jest.mocked(axios);
- 
- jest.mock('json-rules-engine');
-                                                                                                                        
- // Mock the entire axios module                                                                                        
- jest.mock('axios', () => ({                                                                                            
-   __esModule: true,                                                                                                    
-   default: mockAxios,                                                                                                  
-   create: () => mockAxios                                                                                              
- }));                                                                                                                   
+import examplePlugin from './index';
                                                                                                                         
  describe('examplePlugin', () => {                                                                                        
    beforeEach(() => {                                                                                                   
