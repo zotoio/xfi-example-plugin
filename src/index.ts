@@ -37,13 +37,13 @@ const externalCallFact: FactDefn = {
       }
 
       // Make external API call
-      const response = await axios({
-        method: params.method || 'GET',
-        url: params.url,
-        data: params.includeValue ? { value: extractedValue } : undefined,
-        headers: params.headers || {},
-        timeout: params.timeout || 5000
-      });
+      const response = await axios.post(params.url, 
+        params.includeValue ? { value: extractedValue } : undefined,
+        {
+          headers: params.headers || {},
+          timeout: params.timeout || 5000
+        }
+      );
 
       return {
         success: true,
