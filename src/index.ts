@@ -75,7 +75,7 @@ const loadRulesFromDirectory = (dirPath: string): any[] => {
 
 const sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
 
-const plugin: XFiPlugin = {
+const plugin: XFiPlugin & { sampleRules: any[] } = {
   name: 'xfi-example-plugin',
   version: '1.0.0',
   operators: [regexExtractOperator],

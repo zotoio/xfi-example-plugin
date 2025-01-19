@@ -4,10 +4,10 @@ import { jest } from '@jest/globals';
                                                                                                                         
  // Create a mock axios instance                                                                                        
  const mockAxios = {                                                                                                    
-   get: jest.fn(),                                                                                                      
-   post: jest.fn(),                                                                                                     
-   put: jest.fn(),                                                                                                      
-   delete: jest.fn()                                                                                                    
+   get: jest.fn().mockResolvedValue({}),                                                                                                      
+   post: jest.fn().mockResolvedValue({}),                                                                                                     
+   put: jest.fn().mockResolvedValue({}),                                                                                                      
+   delete: jest.fn().mockResolvedValue({})                                                                                                    
  };                  
  
  jest.mock('json-rules-engine');
@@ -58,10 +58,10 @@ import { jest } from '@jest/globals';
                                                                                                                         
    describe('externalApiCall fact', () => {                                                                             
      const fact = examplePlugin.facts![0];     
-     const mockAlmanac: Almanac = {
-      factValue: jest.fn(),
-      addRuntimeFact: jest.fn(),
-      } as unknown as Almanac;                                                                           
+     const mockAlmanac = {
+       factValue: jest.fn().mockResolvedValue({}),
+       addRuntimeFact: jest.fn()
+     };                                                                           
                                                                                                                         
      beforeEach(() => {                                                                                                 
        mockAxios.get.mockClear();                                                                                       
@@ -71,7 +71,7 @@ import { jest } from '@jest/globals';
                                                                                                                         
      it('should handle successful API call', async () => {                                                              
        const mockResponse = { data: { status: 'success' } };                                                            
-       (mockAxios.post as unknown as jest.Mock<Promise<any>>).mockResolvedValueOnce(mockResponse);                                                             
+       mockAxios.post.mockResolvedValueOnce(mockResponse);                                                             
         (mockAlmanac.factValue as jest.Mock)
               .mockResolvedValueOnce({                                                                       
                 fileContent: 'version: "1.0.0"'                                                                              
