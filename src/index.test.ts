@@ -2,6 +2,8 @@ import { jest } from '@jest/globals';
 import { Almanac, Fact } from 'json-rules-engine';
 import axios, { AxiosInstance } from 'axios';
 
+import { AxiosResponse } from 'axios';
+
 // Setup axios mock
 const mockAxios = jest.fn() as unknown as jest.Mocked<typeof axios>;
 Object.assign(mockAxios, {
@@ -88,12 +90,13 @@ import examplePlugin from './index';
      });                                                                                                                
                                                                                                                         
      it('should handle successful API call', async () => {                                                              
-       const mockResponse = {
+       const mockResponse: AxiosResponse = {
          data: { status: 'success' },
          status: 200,
          statusText: 'OK',
          headers: {},
-         config: {} as any
+         config: {} as any,
+         request: {}
        };                                                            
        mockAxios.post.mockImplementationOnce(() => Promise.resolve(mockResponse));
        
