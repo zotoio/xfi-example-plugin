@@ -83,13 +83,13 @@ const loadRulesFromDirectory = (dirPath: string): any[] => {
   return rules;
 };
 
-interface ExtendedXFiPlugin extends XFiPlugin {
+export interface ExtendedXFiPlugin extends XFiPlugin {
   operators: OperatorDefn[];
   facts: FactDefn[];
   sampleRules: any[];
 }
 
-export const plugin: ExtendedXFiPlugin = {
+const plugin: ExtendedXFiPlugin = {
   name: 'xfi-example-plugin',
   version: '1.0.0',
   operators: [regexExtractOperator],
@@ -104,5 +104,5 @@ try {
   console.error('Failed to load rules:', error);
 }
 
-export type { ExtendedXFiPlugin };
+export { plugin };
 export default plugin;
