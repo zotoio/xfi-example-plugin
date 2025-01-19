@@ -5,13 +5,8 @@ import { jest } from '@jest/globals';
  // Create a mock axios instance                                                                                        
 import axios, { AxiosInstance } from 'axios';
 
-const mockAxios = {
-  get: jest.fn().mockResolvedValue({ data: {} }),
-  post: jest.fn().mockResolvedValue({ data: {} }),
-  put: jest.fn().mockResolvedValue({ data: {} }),
-  delete: jest.fn().mockResolvedValue({ data: {} }),
-  create: jest.fn().mockReturnValue({})
-} as jest.Mocked<typeof axios>;
+jest.mock('axios');
+const mockAxios = jest.mocked(axios);
  
  jest.mock('json-rules-engine');
                                                                                                                         
@@ -62,10 +57,10 @@ const mockAxios = {
    describe('externalApiCall fact', () => {                                                                             
      const fact = examplePlugin.facts![0];     
      const mockAlmanac = {
-       factValue: jest.fn().mockResolvedValue({ data: {} }),
-       addRuntimeFact: jest.fn(),
-       addFact: jest.fn()
-     } as jest.Mocked<Almanac>;                                                                           
+       factValue: jest.fn<Promise<any>, [string, Record<string, any>?]>().mockResolvedValue({ data: {} }),
+       addRuntimeFact: jest.fn<Almanac, [string, any]>(),
+       addFact: jest.fn<Almanac, [any]>()
+     } as unknown as jest.Mocked<Almanac>;                                                                           
                                                                                                                         
      beforeEach(() => {                                                                                                 
        mockAxios.get.mockClear();                                                                                       
@@ -95,12 +90,12 @@ const mockAxios = {
                                                                                                                         
      it('should handle regex match failure', async () => {                                                              
        const testAlmanac = {                                                                                            
-         factValue: jest.fn().mockResolvedValue({                                                                       
+         factValue: jest.fn<Promise<any>, [string, Record<string, any>?]>().mockResolvedValue({                                                                       
            fileContent: 'no match here'                                                                                 
          }),
-         addRuntimeFact: jest.fn(),
-         addFact: jest.fn()                                                                                                             
-       } as jest.Mocked<Almanac>;                                                                                                               
+         addRuntimeFact: jest.fn<Almanac, [string, any]>(),
+         addFact: jest.fn<Almanac, [any]>()                                                                                                             
+       } as unknown as jest.Mocked<Almanac>;                                                                                                               
                                                                                                                         
        const result = await fact.fn({                                                                                   
          regex: 'version:\\s*["\']([^"\']+)["\']'                                                                       
@@ -114,12 +109,12 @@ const mockAxios = {
        mockAxios.post.mockRejectedValueOnce(new Error('API Error'));                                                    
                                                                                                                         
        const testAlmanac = {                                                                                            
-         factValue: jest.fn().mockResolvedValue({                                                                       
+         factValue: jest.fn<Promise<any>, [string, Record<string, any>?]>().mockResolvedValue({                                                                       
            fileContent: 'version: "1.0.0"'                                                                              
          }),
-         addRuntimeFact: jest.fn(),
-         addFact: jest.fn()                                                                                                             
-       } as jest.Mocked<Almanac>;                                                                                                               
+         addRuntimeFact: jest.fn<Almanac, [string, any]>(),
+         addFact: jest.fn<Almanac, [any]>()                                                                                                             
+       } as unknown as jest.Mocked<Almanac>;                                                                                                               
                                                                                                                         
        const result = await fact.fn({                                                                                   
          regex: 'version:\\s*["\']([^"\']+)["\']',                                                                      
