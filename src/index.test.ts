@@ -4,8 +4,10 @@ import * as path from 'path';
 import plugin from './index';
 import type { XFiPlugin, OperatorDefn, FactDefn } from 'x-fidelity';
 
-// Type assertion to ensure plugin properties are available
-const typedPlugin = plugin as Required<XFiPlugin> & {
+// Cast to a more specific type for testing
+const typedPlugin = plugin as unknown as {
+  name: string;
+  version: string;
   operators: OperatorDefn[];
   facts: FactDefn[];
   sampleRules: any[];
