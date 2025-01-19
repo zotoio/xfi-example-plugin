@@ -103,4 +103,4 @@ try {
   console.error('Failed to load rules:', error);
 }
 
-export { plugin as default };
+export { plugin as default, loadRulesFromDirectory };

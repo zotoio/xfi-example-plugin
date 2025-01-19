@@ -1,7 +1,7 @@
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
-import plugin from './index';
+import plugin, { loadRulesFromDirectory } from './index';
 import type { XFiPlugin, OperatorDefn, FactDefn } from 'x-fidelity';
 
 // Cast to a more specific type for testing
