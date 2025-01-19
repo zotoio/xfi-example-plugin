@@ -7,9 +7,9 @@ import axios, { AxiosInstance } from 'axios';
 
 // Create mock Almanac factory
 const createMockAlmanac = (factValue: Record<string, any> = { data: {} }) => {
-  type FactValueFn = (factId: string, params?: Record<string, any>) => Promise<any>;
+  const factValueFn = jest.fn().mockImplementation(async () => factValue);
   const mock = {
-    factValue: jest.fn<ReturnType<FactValueFn>, Parameters<FactValueFn>>().mockResolvedValue(factValue),
+    factValue: factValueFn,
     addRuntimeFact: jest.fn().mockReturnThis(),
     addFact: jest.fn().mockReturnThis()
   };
