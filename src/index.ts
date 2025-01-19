@@ -64,8 +64,11 @@ const externalCallFact: FactDefn = {
 
 const loadRulesFromDirectory = (dirPath: string): any[] => {
   const rules: any[] = [];
-  const ruleFiles = fs.readdirSync(dirPath)
-    .filter(file => file.endsWith('-rule.json'));
+  try {
+    const files = fs.readdirSync(dirPath);
+    if (!files) return rules;
+    
+    const ruleFiles = files.filter(file => file.endsWith('-rule.json'));
 
   for (const file of ruleFiles) {
     const filePath = path.join(dirPath, file);
@@ -80,8 +83,6 @@ const loadRulesFromDirectory = (dirPath: string): any[] => {
   return rules;
 };
 
-const sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
-
 export interface ExtendedXFiPlugin extends XFiPlugin {
   operators: OperatorDefn[];
   facts: FactDefn[];
@@ -93,7 +94,14 @@ const plugin: ExtendedXFiPlugin = {
   version: '1.0.0',
   operators: [regexExtractOperator],
   facts: [externalCallFact],
-  sampleRules
+  sampleRules: []
 };
+
+// Load rules after plugin is defined
+try {
+  plugin.sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
+} catch (error) {
+  console.error('Failed to load rules:', error);
+}
 
 export default plugin;
