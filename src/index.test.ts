@@ -6,11 +6,11 @@ import { jest } from '@jest/globals';
 import axios, { AxiosInstance } from 'axios';
 
 // Create mock Almanac factory
-const createMockAlmanac = (factValue: any = { data: {} }) => ({
-  factValue: jest.fn().mockResolvedValue(factValue),
-  addRuntimeFact: jest.fn().mockReturnThis(),
-  addFact: jest.fn().mockReturnThis()
-}) as unknown as jest.Mocked<Almanac>;
+const createMockAlmanac = <T = any>(factValue: T = { data: {} } as T) => ({
+  factValue: jest.fn<Promise<T>, [string, Record<string, any>?]>().mockResolvedValue(factValue),
+  addRuntimeFact: jest.fn<Almanac, [string, any]>().mockReturnThis(),
+  addFact: jest.fn<Almanac, [Fact<any> | string]>().mockReturnThis()
+}) as jest.Mocked<Almanac>;
 
 jest.mock('axios');
 const mockAxios = jest.mocked(axios);
