@@ -92,7 +92,9 @@ import examplePlugin from './index';
        mockAxios.post.mockResolvedValueOnce(mockResponse);
        
        const testAlmanac = createMockAlmanac({
-         fileContent: 'version: "1.0.0"'
+         fileData: {
+           fileContent: 'version: "1.0.0"'
+         }
        });
                                                                                                                
        const params = {                                                                                                 
@@ -110,7 +112,9 @@ import examplePlugin from './index';
                                                                                                                         
      it('should handle regex match failure', async () => {                                                              
        const testAlmanac = createMockAlmanac({
-         fileContent: 'no match here'
+         fileData: {
+           fileContent: 'no match here'
+         }
        });
                                                                                                                         
        const result = await fact.fn({                                                                                   
@@ -125,7 +129,9 @@ import examplePlugin from './index';
        mockAxios.post.mockRejectedValueOnce(new Error('API Error'));                                                    
                                                                                                                         
        const testAlmanac = createMockAlmanac({
-         fileContent: 'version: "1.0.0"'
+         fileData: {
+           fileContent: 'version: "1.0.0"'
+         }
        });
                                                                                                                         
        const result = await fact.fn({                                                                                   

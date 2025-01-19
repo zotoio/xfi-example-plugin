@@ -18,6 +18,13 @@ const externalCallFact: FactDefn = {
   fn: async (params: any, almanac: any) => {
     try {
       const fileData = await almanac.factValue('fileData');
+      if (!fileData) {
+        return { 
+          success: false, 
+          error: 'No file data available',
+          timestamp: new Date().toISOString()
+        };
+      }
       const fileContent = fileData.fileContent;
       
       // Extract value using regex
