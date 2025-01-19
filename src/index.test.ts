@@ -3,20 +3,21 @@ import { Almanac, Fact } from 'json-rules-engine';
 import axios, { AxiosInstance } from 'axios';
 
 // Setup axios mock
-const mockAxios = {
-  get: jest.fn().mockResolvedValue({ data: {} }),
-  post: jest.fn().mockResolvedValue({ data: {} }),
-  create: jest.fn().mockReturnValue({
-    get: jest.fn().mockResolvedValue({ data: {} }),
-    post: jest.fn().mockResolvedValue({ data: {} })
-  }),
-  request: jest.fn().mockResolvedValue({ data: {} }),
+const mockAxios = jest.fn() as unknown as jest.Mocked<typeof axios>;
+Object.assign(mockAxios, {
+  get: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
+  post: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
+  create: jest.fn().mockImplementation(() => ({
+    get: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
+    post: jest.fn().mockImplementation(() => Promise.resolve({ data: {} }))
+  })),
+  request: jest.fn().mockImplementation(() => Promise.resolve({ data: {} })),
   defaults: {},
   interceptors: {
     request: { use: jest.fn(), eject: jest.fn() },
     response: { use: jest.fn(), eject: jest.fn() }
   }
-} as jest.Mocked<typeof axios>;
+});
 
 jest.mock('axios', () => ({
   __esModule: true,
