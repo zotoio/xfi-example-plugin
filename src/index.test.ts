@@ -3,12 +3,15 @@ import { Almanac } from 'json-rules-engine';
 import { jest } from '@jest/globals';                                                                                  
                                                                                                                         
  // Create a mock axios instance                                                                                        
- const mockAxios = {                                                                                                    
-   get: jest.fn().mockResolvedValue({}),                                                                                                      
-   post: jest.fn().mockResolvedValue({}),                                                                                                     
-   put: jest.fn().mockResolvedValue({}),                                                                                                      
-   delete: jest.fn().mockResolvedValue({})                                                                                                    
- } as jest.Mocked<typeof import('axios').default>;                  
+import axios, { AxiosInstance } from 'axios';
+
+const mockAxios = {
+  get: jest.fn().mockResolvedValue({ data: {} }),
+  post: jest.fn().mockResolvedValue({ data: {} }),
+  put: jest.fn().mockResolvedValue({ data: {} }),
+  delete: jest.fn().mockResolvedValue({ data: {} }),
+  create: jest.fn().mockReturnValue({})
+} as jest.Mocked<typeof axios>;
  
  jest.mock('json-rules-engine');
                                                                                                                         
@@ -59,8 +62,9 @@ import { jest } from '@jest/globals';
    describe('externalApiCall fact', () => {                                                                             
      const fact = examplePlugin.facts![0];     
      const mockAlmanac = {
-       factValue: jest.fn().mockResolvedValue({}),
-       addRuntimeFact: jest.fn()
+       factValue: jest.fn().mockResolvedValue({ data: {} }),
+       addRuntimeFact: jest.fn(),
+       addFact: jest.fn()
      } as jest.Mocked<Almanac>;                                                                           
                                                                                                                         
      beforeEach(() => {                                                                                                 
@@ -90,11 +94,13 @@ import { jest } from '@jest/globals';
      });                                                                                                                
                                                                                                                         
      it('should handle regex match failure', async () => {                                                              
-       const mockAlmanac = {                                                                                            
+       const testAlmanac = {                                                                                            
          factValue: jest.fn().mockResolvedValue({                                                                       
            fileContent: 'no match here'                                                                                 
-         })                                                                                                             
-       };                                                                                                               
+         }),
+         addRuntimeFact: jest.fn(),
+         addFact: jest.fn()                                                                                                             
+       } as jest.Mocked<Almanac>;                                                                                                               
                                                                                                                         
        const result = await fact.fn({                                                                                   
          regex: 'version:\\s*["\']([^"\']+)["\']'                                                                       
@@ -107,11 +113,13 @@ import { jest } from '@jest/globals';
      it('should handle API call failure', async () => {                                                                 
        mockAxios.post.mockRejectedValueOnce(new Error('API Error'));                                                    
                                                                                                                         
-       const mockAlmanac = {                                                                                            
+       const testAlmanac = {                                                                                            
          factValue: jest.fn().mockResolvedValue({                                                                       
            fileContent: 'version: "1.0.0"'                                                                              
-         })                                                                                                             
-       };                                                                                                               
+         }),
+         addRuntimeFact: jest.fn(),
+         addFact: jest.fn()                                                                                                             
+       } as jest.Mocked<Almanac>;                                                                                                               
                                                                                                                         
        const result = await fact.fn({                                                                                   
          regex: 'version:\\s*["\']([^"\']+)["\']',                                                                      
