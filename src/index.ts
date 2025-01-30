@@ -118,10 +118,10 @@ const loadRulesFromDirectory = (dirPath: string): any[] => {
         rules.push(rule);
         logger.debug(`Successfully parsed rule: ${JSON.stringify({ ruleName: rule.name })}`);
       } catch (error) {
-        logger.error('Error parsing rule file', { 
+        logger.error(`Error parsing rule file: ${JSON.stringify({ 
           file,
           error: error instanceof Error ? error.message : 'Unknown error'
-        });
+        })}`);
       }
     }
     return rules;
