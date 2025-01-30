@@ -1,4 +1,4 @@
-import { XFiPlugin, OperatorDefn, FactDefn } from 'x-fidelity';
+import { XFiPlugin, OperatorDefn, FactDefn, logger } from 'x-fidelity';
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -82,7 +82,7 @@ const loadRulesFromDirectory = (dirPath: string): any[] => {
     }
     return rules;
   } catch (error) {
-    console.error('Error reading rules directory:', error);
+    logger.error('Error reading rules directory:', error);
     return rules;
   }
 };
