@@ -3,6 +3,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import plugin, { loadRulesFromDirectory } from './index';
 import type { XFiPlugin, OperatorDefn, FactDefn } from 'x-fidelity';
+import { logger } from 'x-fidelity';
 
 // Cast to a more specific type for testing
 const typedPlugin = plugin as unknown as {
