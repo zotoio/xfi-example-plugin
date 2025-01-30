@@ -141,12 +141,12 @@ const plugin: XFiPlugin = {
   operators: [regexExtractOperator],
   facts: [externalCallFact],
   sampleRules: []
-};
+} as const;  // Use const assertion to ensure properties are defined
 
 logger.info('Initializing xfi-example-plugin', { 
   version: plugin.version,
-  operatorCount: plugin.operators.length,
-  factCount: plugin.facts.length
+  operatorCount: plugin.operators?.length ?? 0,  // Safe access with fallback
+  factCount: plugin.facts?.length ?? 0  // Safe access with fallback
 });
 
 // Load rules after plugin is defined
