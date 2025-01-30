@@ -165,10 +165,10 @@ describe('Plugin: xfi-example-plugin', () => {
         
         expect(typedPlugin.sampleRules).toHaveLength(0);
         expect(loggerSpy).toHaveBeenCalled();
-        expect(loggerSpy).toHaveBeenCalledWith('Error parsing rule file', {
+        expect(loggerSpy).toHaveBeenCalledWith(`Error parsing rule file: ${JSON.stringify({
           file: 'invalid-rule.json',
           error: expect.any(String)
-        });
+        })}`);
         
         loggerSpy.mockRestore();
       });
