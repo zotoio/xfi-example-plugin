@@ -152,8 +152,8 @@ describe('Plugin: xfi-example-plugin', () => {
       });
 
       it('should handle invalid JSON', () => {
-        // Setup console spy
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+        // Setup logger spy
+        const loggerSpy = jest.spyOn(logger, 'error').mockImplementation();
         
         // Setup mock filesystem with invalid JSON
         (fs.readdirSync as jest.Mock).mockReturnValue(['invalid-rule.json']);
@@ -163,13 +163,13 @@ describe('Plugin: xfi-example-plugin', () => {
         typedPlugin.sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
         
         expect(typedPlugin.sampleRules).toHaveLength(0);
-        expect(consoleSpy).toHaveBeenCalled();
-        expect(consoleSpy).toHaveBeenCalledWith(
-          expect.stringContaining('Error parsing rule file invalid-rule.json'),
-          expect.any(Error)
-        );
+        expect(loggerSpy).toHaveBeenCalled();
+        expect(loggerSpy).toHaveBeenCalledWith('Error parsing rule file', {
+          file: 'invalid-rule.json',
+          error: expect.any(String)
+        });
         
-        consoleSpy.mockRestore();
+        loggerSpy.mockRestore();
       });
     });
   });
