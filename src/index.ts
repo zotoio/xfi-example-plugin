@@ -2,6 +2,7 @@ import { XFiPlugin, OperatorDefn, FactDefn, logger } from 'x-fidelity';
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';
+import { version } from '../package.json';
 
 const regexExtractOperator: OperatorDefn = {
   name: 'regexExtract',
@@ -137,7 +138,7 @@ const loadRulesFromDirectory = (dirPath: string): any[] => {
 // Create the plugin instance with required properties
 const plugin: XFiPlugin = {
   name: 'xfi-example-plugin',
-  version: '1.0.0',
+  version,  // Use version from package.json
   operators: [regexExtractOperator],
   facts: [externalCallFact],
   sampleRules: []
