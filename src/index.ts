@@ -7,17 +7,18 @@ import { version } from '../package.json';
 const regexExtractOperator: OperatorDefn = {
   name: 'regexExtract',
   fn: (repoFileAnalysis: any, pattern: string) => {
-    logger.debug(`regexExtract operator called: ${JSON.stringify({ pattern })}`);
+    logger.debug({ op: 'regexExtract', pattern }, 'operator called');
     
     if (!repoFileAnalysis?.result || !Array.isArray(repoFileAnalysis.result)) {
-      logger.debug(`regexExtract: Invalid input: ${JSON.stringify({ repoFileAnalysis })}`);
+      logger.debug({ op: 'regexExtract', repoFileAnalysis }, 'invalid input');
       return false;
     }
     
-    logger.debug(`regexExtract result: ${JSON.stringify({ 
+    logger.debug({ 
+      op: 'regexExtract',
       matches: repoFileAnalysis.result.length,
       result: repoFileAnalysis.result 
-    })}`);
+    }, 'operation result');
     return repoFileAnalysis.result.length > 0;
   }
 };
@@ -25,12 +26,12 @@ const regexExtractOperator: OperatorDefn = {
 const externalCallFact: FactDefn = {
   name: 'externalApiCall',
   fn: async (params: any, almanac: any) => {
-    logger.debug(`externalApiCall fact called: ${JSON.stringify({ params })}`);
+    logger.debug({ op: 'externalApiCall', params }, 'fact called');
     
     try {
       const fileData = await almanac.factValue('fileData');
       if (!fileData) {
-        logger.warn(`externalApiCall: No file data available`);
+        logger.warn({ op: 'externalApiCall' }, 'no file data available');
         return { 
           success: false, 
           error: 'No file data available',
@@ -39,7 +40,7 @@ const externalCallFact: FactDefn = {
       }
       
       const fileContent = fileData.fileContent;
-      logger.debug(`File content loaded: ${JSON.stringify({ length: fileContent.length })}`);
+      logger.debug({ op: 'externalApiCall', contentLength: fileContent.length }, 'file content loaded');
       
       // Extract value using regex
       const regex = new RegExp(params.regex);
@@ -47,18 +48,19 @@ const externalCallFact: FactDefn = {
       const extractedValue = match ? match[1] : null;
 
       if (!extractedValue) {
-        logger.debug(`No regex match found: ${JSON.stringify({ pattern: params.regex })}`);
+        logger.debug({ op: 'externalApiCall', pattern: params.regex }, 'no regex match found');
         return { success: false, reason: 'No match found' };
       }
       
-      logger.debug(`Value extracted: ${JSON.stringify({ extractedValue })}`);
+      logger.debug({ op: 'externalApiCall', extractedValue }, 'value extracted');
 
       // Make external API call
-      logger.debug(`Making API call: ${JSON.stringify({ 
+      logger.debug({ 
+        op: 'externalApiCall',
         url: params.url,
         includeValue: params.includeValue,
         timeout: params.timeout || 5000
-      })}`);
+      }, 'making API call');
       
       const response = await axios.post(params.url, 
         params.includeValue ? { value: extractedValue } : undefined,
@@ -68,10 +70,11 @@ const externalCallFact: FactDefn = {
         }
       );
 
-      logger.debug(`API call successful: ${JSON.stringify({ 
+      logger.debug({ 
+        op: 'externalApiCall',
         status: response.status,
         responseLength: JSON.stringify(response.data).length 
-      })}`);
+      }, 'API call successful');
 
       return {
         success: true,
@@ -81,10 +84,10 @@ const externalCallFact: FactDefn = {
       };
 
     } catch (error) {
-      logger.error(`externalApiCall error ${ JSON.stringify({
-        error: error instanceof Error ? error.message : 'Unknown error',
-        stack: error instanceof Error ? error.stack : undefined
-      })}`);
+      logger.error({ 
+        op: 'externalApiCall',
+        err: error
+      }, 'API call failed');
       
       return {
         success: false,
@@ -96,41 +99,46 @@ const externalCallFact: FactDefn = {
 };
 
 const loadRulesFromDirectory = (dirPath: string): any[] => {
-  logger.debug(`Loading rules from directory: ${JSON.stringify({ dirPath })}`);
+  logger.debug({ op: 'loadRules', dirPath }, 'loading rules from directory');
   const rules: any[] = [];
   
   try {
     const files = fs.readdirSync(dirPath);
     if (!files) {
-      logger.warn(`No files found in rules directory`);
+      logger.warn({ op: 'loadRules' }, 'no files found in rules directory');
       return rules;
     }
     
     const ruleFiles = files.filter(file => file.endsWith('-rule.json'));
-    logger.debug(`Found rule files: ${JSON.stringify({ count: ruleFiles.length, files: ruleFiles })}`);
+    logger.debug({ 
+      op: 'loadRules', 
+      count: ruleFiles.length, 
+      files: ruleFiles 
+    }, 'found rule files');
 
     for (const file of ruleFiles) {
       const filePath = path.join(dirPath, file);
-      logger.debug(`Reading rule file: ${JSON.stringify({ filePath })}`);
+      logger.debug({ op: 'loadRules', filePath }, 'reading rule file');
       
       const ruleContent = fs.readFileSync(filePath, 'utf8');
       try {
         const rule = JSON.parse(ruleContent);
         rules.push(rule);
-        logger.debug(`Successfully parsed rule: ${JSON.stringify({ ruleName: rule.name })}`);
+        logger.debug({ op: 'loadRules', ruleName: rule.name }, 'successfully parsed rule');
       } catch (error) {
-        logger.error(`Error parsing rule file: ${JSON.stringify({ 
+        logger.error({ 
+          op: 'loadRules',
           file,
-          error: error instanceof Error ? error.message : 'Unknown error'
-        })}`);
+          err: error
+        }, 'error parsing rule file');
       }
     }
     return rules;
   } catch (error) {
-    logger.error(`Error reading rules directory: ${JSON.stringify({
-      error: error instanceof Error ? error.message : 'Unknown error',
-      stack: error instanceof Error ? error.stack : undefined
-    })}`);
+    logger.error({ 
+      op: 'loadRules',
+      err: error
+    }, 'error reading rules directory');
     return rules;
   }
 };
@@ -153,13 +161,15 @@ logger.info(`Initializing xfi-example-plugin: ${JSON.stringify({
 // Load rules after plugin is defined
 try {
   plugin.sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
-  logger.info(`Plugin initialization complete: ${JSON.stringify({ 
+  logger.info({ 
+    op: 'init',
     rulesLoaded: plugin.sampleRules.length 
-  })}`);
+  }, 'plugin initialization complete');
 } catch (error) {
-  logger.error(`Failed to load rules during plugin initialization: ${JSON.stringify({
-    error: error instanceof Error ? error.message : 'Unknown error'
-  })}`);
+  logger.error({ 
+    op: 'init',
+    err: error
+  }, 'failed to load rules during initialization');
 }
 
 export { plugin as default, loadRulesFromDirectory };
