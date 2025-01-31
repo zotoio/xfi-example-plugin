@@ -181,9 +181,9 @@ describe('Plugin: xfi-example-plugin', () => {
         
         expect(typedPlugin.sampleRules).toHaveLength(0);
         expect(loggerSpy).toHaveBeenCalled();
-        // Use a more flexible matcher since the exact error message may vary
         expect(loggerSpy).toHaveBeenCalledWith(
-          expect.stringMatching(/Error parsing rule file: \{"file":"invalid-rule\.json","error":".*"\}/)
+          { op: 'loadRules', file: 'invalid-rule.json', err: expect.any(Error) },
+          'error parsing rule file'
         );
         
         loggerSpy.mockRestore();
