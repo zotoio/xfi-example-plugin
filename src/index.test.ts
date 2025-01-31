@@ -130,9 +130,7 @@ describe('Plugin: xfi-example-plugin', () => {
         (axios.post as jest.Mock).mockRejectedValue(networkError);
         
         const almanac = createMockAlmanac('test value: 123');
-        const result = await externalApiCall(validParams, almanac);
-
-        expect(result).toEqual({
+        await expect(externalApiCall(validParams, almanac)).resolves.toEqual({
           success: false,
           error: 'Network error',
           timestamp: expect.any(String)
