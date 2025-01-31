@@ -3,6 +3,18 @@ import * as fs from 'fs';
 import * as path from 'path';
 import plugin, { loadRulesFromDirectory } from './index';
 import type { XFiPlugin, OperatorDefn, FactDefn } from 'x-fidelity';
+
+// Mock the logger
+jest.mock('x-fidelity', () => ({
+  ...jest.requireActual('x-fidelity'),
+  logger: {
+    debug: jest.fn(),
+    info: jest.fn(),
+    warn: jest.fn(),
+    error: jest.fn()
+  }
+}));
+
 import { logger } from 'x-fidelity';
 
 // Cast to a more specific type for testing
