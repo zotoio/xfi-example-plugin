@@ -90,11 +90,11 @@ const externalCallFact: FactDefn = {
         err: error
       }, 'API call failed');
       
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
-      };
+      // return {
+      //   success: false,
+      //   error: error instanceof Error ? error.message : 'Unknown error',
+      //   timestamp: new Date().toISOString()
+      // };
     }
   }
 };
