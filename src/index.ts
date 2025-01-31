@@ -152,11 +152,12 @@ const plugin: XFiPlugin = {
   sampleRules: []
 } as const;  // Use const assertion to ensure properties are defined
 
-logger.info(`Initializing xfi-example-plugin: ${JSON.stringify({ 
+logger.info({ 
+  op: 'init',
   version: plugin.version,
   operatorCount: plugin.operators?.length ?? 0,  // Safe access with fallback
   factCount: plugin.facts?.length ?? 0  // Safe access with fallback
-})}`);
+}, 'initializing xfi-example-plugin');
 
 // Load rules after plugin is defined
 try {
