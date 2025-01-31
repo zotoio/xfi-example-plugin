@@ -1,4 +1,5 @@
-import { XFiPlugin, OperatorDefn, FactDefn, logger } from 'x-fidelity';
+import type { XFiPlugin } from 'x-fidelity';
+import { OperatorDefn, FactDefn, logger } from 'x-fidelity';
 import axios from 'axios';
 import * as fs from 'fs';
 import * as path from 'path';

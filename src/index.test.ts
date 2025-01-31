@@ -4,18 +4,25 @@ import * as path from 'path';
 import plugin, { loadRulesFromDirectory } from './index';
 import type { XFiPlugin, OperatorDefn, FactDefn } from 'x-fidelity';
 
-// Mock the logger
-jest.mock('x-fidelity', () => ({
-  ...jest.requireActual('x-fidelity'),
-  logger: {
+// Mock x-fidelity
+jest.mock('x-fidelity', () => {
+  const mockLogger = {
     debug: jest.fn(),
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn()
-  }
-}));
+  };
 
-import { logger } from 'x-fidelity';
+  return {
+    logger: mockLogger,
+    // Include other x-fidelity exports that might be needed
+    OperatorDefn: jest.fn(),
+    FactDefn: jest.fn()
+  };
+});
+
+// Import after mocking
+import { logger, OperatorDefn, FactDefn } from 'x-fidelity';
 
 // Cast to a more specific type for testing
 const typedPlugin = plugin as unknown as {
