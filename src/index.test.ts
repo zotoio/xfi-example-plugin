@@ -14,15 +14,12 @@ jest.mock('x-fidelity', () => {
   };
 
   return {
-    logger: mockLogger,
-    // Include other x-fidelity exports that might be needed
-    OperatorDefn: jest.fn(),
-    FactDefn: jest.fn()
+    logger: mockLogger
   };
 });
 
 // Import after mocking
-import { logger, OperatorDefn, FactDefn } from 'x-fidelity';
+import { logger } from 'x-fidelity';
 
 // Cast to a more specific type for testing
 const typedPlugin = plugin as unknown as {
