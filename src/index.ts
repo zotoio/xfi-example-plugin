@@ -69,10 +69,7 @@ const externalCallFact: FactDefn = {
           headers: params.headers || {},
           timeout: params.timeout || 5000
         }
-      ).catch(error => {
-        logger.warn({'abc': 'def'}, 'error');
-        throw new Error(error);     
-      });
+      );
 
       logger.debug({ 
         op: 'externalApiCall',
@@ -93,11 +90,11 @@ const externalCallFact: FactDefn = {
         err: error
       }, 'API call failed');
       
-      throw new Error(JSON.stringify({  
+      return {
         success: false,
         error: error instanceof Error ? error.message : 'Unknown error',
         timestamp: new Date().toISOString()
-      }));
+      };
     }
   }
 };
