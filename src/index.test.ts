@@ -130,10 +130,15 @@ describe('Plugin: xfi-example-plugin', () => {
         (axios.post as jest.Mock).mockRejectedValue(networkError);
         
         const almanac = createMockAlmanac('test value: 123');
-        await expect(externalApiCall(validParams, almanac)).resolves.toEqual({
-          success: false,
-          error: 'Network error',
-          timestamp: expect.any(String)
+        
+        await expect(externalApiCall(validParams, almanac)).rejects.toMatchObject({
+          message: 'Network error',
+          isPluginError: true,
+          level: 'error',
+          details: expect.objectContaining({
+            operation: 'externalApiCall',
+            timestamp: expect.any(String)
+          })
         });
       });
     });
@@ -166,7 +171,7 @@ describe('Plugin: xfi-example-plugin', () => {
         expect(fs.readFileSync).toHaveBeenCalledTimes(1);
       });
 
-      it('should handle invalid JSON', () => {
+      it('should handle invalid JSON', async () => {
         // Setup logger spy
         const loggerSpy = jest.spyOn(logger, 'error').mockImplementation();
         
@@ -174,13 +179,27 @@ describe('Plugin: xfi-example-plugin', () => {
         (fs.readdirSync as jest.Mock).mockReturnValue(['invalid-rule.json']);
         (fs.readFileSync as jest.Mock).mockReturnValue('{ invalid json }');
         
-        // Re-run rule loading
-        typedPlugin.sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
+        // Re-run rule loading and expect it to throw
+        await expect(async () => {
+          typedPlugin.sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
+        }).rejects.toMatchObject({
+          message: expect.stringContaining('Failed to parse rule file invalid-rule.json'),
+          isPluginError: true,
+          level: 'error',
+          details: expect.objectContaining({
+            file: 'invalid-rule.json',
+            operation: 'loadRules'
+          })
+        });
         
-        expect(typedPlugin.sampleRules).toHaveLength(0);
         expect(loggerSpy).toHaveBeenCalled();
         expect(loggerSpy).toHaveBeenCalledWith(
-          { op: 'loadRules', file: 'invalid-rule.json', err: expect.any(Error) },
+          expect.objectContaining({
+            op: 'loadRules',
+            file: 'invalid-rule.json',
+            err: expect.any(Error),
+            level: 'error'
+          }),
           'error parsing rule file'
         );
         
@@ -196,11 +215,36 @@ describe('Plugin: xfi-example-plugin', () => {
         version: '1.0.0',
         operators: expect.any(Array),
         facts: expect.any(Array),
-        sampleRules: expect.any(Array)
+        sampleRules: expect.any(Array),
+        onError: expect.any(Function)
       });
       
       expect(plugin.operators).toHaveLength(1);
       expect(plugin.facts).toHaveLength(1);
+    });
+
+    it('should handle plugin errors correctly', () => {
+      const pluginError = new Error('Test error');
+      (pluginError as any).isPluginError = true;
+      (pluginError as any).level = 'warning';
+      (pluginError as any).details = { test: true };
+
+      const result = plugin.onError(pluginError);
+      expect(result).toEqual({
+        level: 'warning',
+        message: 'Test error',
+        details: { test: true }
+      });
+    });
+
+    it('should handle non-plugin errors as fatal', () => {
+      const error = new Error('Regular error');
+      const result = plugin.onError(error);
+      expect(result).toEqual({
+        level: 'fatality',
+        message: 'Regular error',
+        details: error.stack
+      });
     });
   });
 });
