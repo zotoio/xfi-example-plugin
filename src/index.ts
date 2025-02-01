@@ -1,4 +1,10 @@
-import type { PluginError, XFiPlugin } from 'x-fidelity';
+import type { PluginError, XFiPlugin, ErrorLevel } from 'x-fidelity';
+
+interface ApiError extends Error {
+  isPluginError?: boolean;
+  level?: ErrorLevel;
+  details?: any;
+}
 import { OperatorDefn, FactDefn, logger } from 'x-fidelity';
 import axios from 'axios';
 import * as fs from 'fs';
@@ -85,16 +91,23 @@ const externalCallFact: FactDefn = {
       };
 
     } catch (error) {
+      const apiError: ApiError = new Error(
+        error instanceof Error ? error.message : 'Unknown error'
+      );
+      apiError.isPluginError = true;
+      apiError.level = 'error';
+      apiError.details = {
+        timestamp: new Date().toISOString(),
+        operation: 'externalApiCall'
+      };
+
       logger.error({ 
         op: 'externalApiCall',
-        err: error
+        err: apiError,
+        level: apiError.level
       }, 'API call failed');
       
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Unknown error',
-        timestamp: new Date().toISOString()
-      };
+      throw apiError;
     }
   }
 };
@@ -127,11 +140,21 @@ const loadRulesFromDirectory = (dirPath: string): any[] => {
         rules.push(rule);
         logger.debug({ op: 'loadRules', ruleName: rule.name }, 'successfully parsed rule');
       } catch (error) {
+        const parseError: ApiError = new Error(
+          `Failed to parse rule file ${file}: ${error instanceof Error ? error.message : 'Unknown error'}`
+        );
+        parseError.isPluginError = true;
+        parseError.level = 'error';
+        parseError.details = { file, operation: 'loadRules' };
+
         logger.error({ 
           op: 'loadRules',
           file,
-          err: error
+          err: parseError,
+          level: parseError.level
         }, 'error parsing rule file');
+        
+        throw parseError;
       }
     }
     return rules;
@@ -151,15 +174,19 @@ const plugin: XFiPlugin = {
   operators: [regexExtractOperator],
   facts: [externalCallFact],
   sampleRules: [],
-  onError: (error: Error): PluginError => {
+  onError: (error: Error | ApiError): PluginError => {
+    const isApiError = (error as ApiError).isPluginError;
+    
     logger.error({ 
       op: 'error',
-      err: error
+      err: error,
+      isApiError
     }, 'plugin error');
+
     return {
-      level: 'fatality',
+      level: isApiError ? (error as ApiError).level || 'error' : 'fatality',
       message: error.message,
-      details: error.stack
+      details: isApiError ? (error as ApiError).details : error.stack
     };
   }
 } as const;  // Use const assertion to ensure properties are defined
