@@ -1,4 +1,4 @@
-import type { XFiPlugin } from 'x-fidelity';
+import type { PluginError, XFiPlugin } from 'x-fidelity';
 import { OperatorDefn, FactDefn, logger } from 'x-fidelity';
 import axios from 'axios';
 import * as fs from 'fs';
@@ -69,18 +69,21 @@ const externalCallFact: FactDefn = {
           headers: params.headers || {},
           timeout: params.timeout || 5000
         }
-      );
+      ).catch(error => {
+        logger.warn({'abc': 'def'}, 'error');
+        throw new Error(error);     
+      });
 
       logger.debug({ 
         op: 'externalApiCall',
-        status: response.status,
-        responseLength: JSON.stringify(response.data).length 
+        status: response?.status,
+        responseLength: JSON.stringify(response?.data).length 
       }, 'API call successful');
 
       return {
         success: true,
         extractedValue,
-        apiResponse: response.data,
+        apiResponse: response?.data,
         timestamp: new Date().toISOString()
       };
 
@@ -90,11 +93,11 @@ const externalCallFact: FactDefn = {
         err: error
       }, 'API call failed');
       
-      // return {
-      //   success: false,
-      //   error: error instanceof Error ? error.message : 'Unknown error',
-      //   timestamp: new Date().toISOString()
-      // };
+      throw new Error(JSON.stringify({  
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+        timestamp: new Date().toISOString()
+      }));
     }
   }
 };
@@ -150,7 +153,18 @@ const plugin: XFiPlugin = {
   version,  // Use version from package.json
   operators: [regexExtractOperator],
   facts: [externalCallFact],
-  sampleRules: []
+  sampleRules: [],
+  onError: (error: Error): PluginError => {
+    logger.error({ 
+      op: 'error',
+      err: error
+    }, 'plugin error');
+    return {
+      level: 'fatality',
+      message: error.message,
+      details: error.stack
+    };
+  }
 } as const;  // Use const assertion to ensure properties are defined
 
 logger.info({ 
