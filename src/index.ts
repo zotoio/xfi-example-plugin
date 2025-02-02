@@ -1,14 +1,6 @@
-import type { PluginError, XFiPlugin, ErrorLevel } from 'x-fidelity';
-
-interface ApiError extends Error {
-  isPluginError?: boolean;
-  level?: ErrorLevel;
-  details?: any;
-}
+import type { PluginError, XFiPlugin } from 'x-fidelity';
 import { OperatorDefn, FactDefn, logger } from 'x-fidelity';
 import axios from 'axios';
-import * as fs from 'fs';
-import * as path from 'path';
 import { version } from '../package.json';
 
 const regexExtractOperator: OperatorDefn = {
@@ -91,79 +83,19 @@ const externalCallFact: FactDefn = {
       };
 
     } catch (error) {
-      const apiError: ApiError = new Error(
-        error instanceof Error ? error.message : 'Unknown error'
-      );
-      apiError.isPluginError = true;
-      apiError.level = 'error';
-      apiError.details = {
-        timestamp: new Date().toISOString(),
-        operation: 'externalApiCall'
+      const pluginError: PluginError = {
+        message: 'API call failed',
+        level: 'error',
+        details: { 
+          operation: 'externalApiCall', 
+          stack: (error as Error).stack
+        }
       };
 
-      logger.error({ 
-        op: 'externalApiCall',
-        err: apiError,
-        level: apiError.level
-      }, 'API call failed');
+      logger.error(pluginError, 'API call failed');
       
-      throw apiError;
+      throw pluginError;
     }
-  }
-};
-
-const loadRulesFromDirectory = (dirPath: string): any[] => {
-  logger.debug({ op: 'loadRules', dirPath }, 'loading rules from directory');
-  const rules: any[] = [];
-  
-  try {
-    const files = fs.readdirSync(dirPath);
-    if (!files) {
-      logger.warn({ op: 'loadRules' }, 'no files found in rules directory');
-      return rules;
-    }
-    
-    const ruleFiles = files.filter(file => file.endsWith('-rule.json'));
-    logger.debug({ 
-      op: 'loadRules', 
-      count: ruleFiles.length, 
-      files: ruleFiles 
-    }, 'found rule files');
-
-    for (const file of ruleFiles) {
-      const filePath = path.join(dirPath, file);
-      logger.debug({ op: 'loadRules', filePath }, 'reading rule file');
-      
-      const ruleContent = fs.readFileSync(filePath, 'utf8');
-      try {
-        const rule = JSON.parse(ruleContent);
-        rules.push(rule);
-        logger.debug({ op: 'loadRules', ruleName: rule.name }, 'successfully parsed rule');
-      } catch (error) {
-        const parseError: ApiError = new Error(
-          `Failed to parse rule file ${file}: ${error instanceof Error ? error.message : 'Unknown error'}`
-        );
-        parseError.isPluginError = true;
-        parseError.level = 'error';
-        parseError.details = { file, operation: 'loadRules' };
-
-        logger.error({ 
-          op: 'loadRules',
-          file,
-          err: parseError,
-          level: parseError.level
-        }, 'error parsing rule file');
-        
-        throw parseError;
-      }
-    }
-    return rules;
-  } catch (error) {
-    logger.error({ 
-      op: 'loadRules',
-      err: error
-    }, 'error reading rules directory');
-    return rules;
   }
 };
 
@@ -173,43 +105,30 @@ const plugin: XFiPlugin = {
   version,  // Use version from package.json
   operators: [regexExtractOperator],
   facts: [externalCallFact],
-  sampleRules: [],
-  onError: (error: Error | ApiError): PluginError => {
-    const isApiError = (error as ApiError).isPluginError;
+  onError: (error: Error): PluginError => {
     
-    logger.error({ 
-      op: 'error',
-      err: error,
-      isApiError
-    }, 'plugin error');
-
-    return {
-      level: isApiError ? (error as ApiError).level || 'error' : 'fatality',
-      message: error.message,
-      details: isApiError ? (error as ApiError).details : error.stack
+    const pluginError: PluginError = {
+      message: 'error parsing rule file',
+      level: 'error',
+      details: { 
+        operation: 'loadRules',
+        stack: (error as Error).stack
+      }
     };
+
+    logger.error(pluginError, 'Plugin error occurred');
+    
+    // perform additional actions if needed
+
+    return pluginError;
   }
-} as const;  // Use const assertion to ensure properties are defined
+};
 
 logger.info({ 
   op: 'init',
   version: plugin.version,
-  operatorCount: plugin.operators?.length ?? 0,  // Safe access with fallback
-  factCount: plugin.facts?.length ?? 0  // Safe access with fallback
+  operatorCount: plugin.operators?.length ?? 0,  
+  factCount: plugin.facts?.length ?? 0  
 }, 'initializing xfi-example-plugin');
 
-// Load rules after plugin is defined
-try {
-  plugin.sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
-  logger.info({ 
-    op: 'init',
-    rulesLoaded: plugin.sampleRules.length 
-  }, 'plugin initialization complete');
-} catch (error) {
-  logger.error({ 
-    op: 'init',
-    err: error
-  }, 'failed to load rules during initialization');
-}
-
-export { plugin as default, loadRulesFromDirectory };
+export { plugin as default };

@@ -1,7 +1,5 @@
 import axios from 'axios';
-import * as fs from 'fs';
-import * as path from 'path';
-import plugin, { loadRulesFromDirectory } from './index';
+import plugin from './index';
 import type { XFiPlugin, OperatorDefn, FactDefn } from 'x-fidelity';
 
 // Mock x-fidelity
@@ -22,12 +20,11 @@ jest.mock('x-fidelity', () => {
 import { logger } from 'x-fidelity';
 
 // Cast to a more specific type for testing
-const typedPlugin = plugin as unknown as {
+const typedPlugin = plugin as XFiPlugin as {
   name: string;
   version: string;
   operators: OperatorDefn[];
   facts: FactDefn[];
-  sampleRules: any[];
 };
 
 jest.mock('axios');
@@ -144,70 +141,6 @@ describe('Plugin: xfi-example-plugin', () => {
     });
   });
 
-  describe('Rule Loading', () => {
-    beforeEach(() => {
-      jest.clearAllMocks();
-    });
-
-    describe('loadRulesFromDirectory', () => {
-      it('should load valid rule files', () => {
-        // Setup mock rule content
-        const mockRuleContent = JSON.stringify({
-          name: "test-rule",
-          conditions: { all: [] },
-          event: { type: "test" }
-        });
-        
-        // Setup mock filesystem
-        (fs.readdirSync as jest.Mock).mockReturnValue(['test-rule.json']);
-        (fs.readFileSync as jest.Mock).mockReturnValue(mockRuleContent);
-        (path.join as jest.Mock).mockImplementation((...args) => args.join('/'));
-
-        // Re-run rule loading
-        typedPlugin.sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
-
-        expect(typedPlugin.sampleRules).toHaveLength(1);
-        expect(typedPlugin.sampleRules[0]).toEqual(JSON.parse(mockRuleContent));
-        expect(fs.readFileSync).toHaveBeenCalledTimes(1);
-      });
-
-      it('should handle invalid JSON', async () => {
-        // Setup logger spy
-        const loggerSpy = jest.spyOn(logger, 'error').mockImplementation();
-        
-        // Setup mock filesystem with invalid JSON
-        (fs.readdirSync as jest.Mock).mockReturnValue(['invalid-rule.json']);
-        (fs.readFileSync as jest.Mock).mockReturnValue('{ invalid json }');
-        
-        // Re-run rule loading and expect it to throw
-        await expect(async () => {
-          typedPlugin.sampleRules = loadRulesFromDirectory(path.join(__dirname, 'rules'));
-        }).rejects.toMatchObject({
-          message: expect.stringContaining('Failed to parse rule file invalid-rule.json'),
-          isPluginError: true,
-          level: 'error',
-          details: expect.objectContaining({
-            file: 'invalid-rule.json',
-            operation: 'loadRules'
-          })
-        });
-        
-        expect(loggerSpy).toHaveBeenCalled();
-        expect(loggerSpy).toHaveBeenCalledWith(
-          expect.objectContaining({
-            op: 'loadRules',
-            file: 'invalid-rule.json',
-            err: expect.any(Error),
-            level: 'error'
-          }),
-          'error parsing rule file'
-        );
-        
-        loggerSpy.mockRestore();
-      });
-    });
-  });
-
   describe('Plugin Configuration', () => {
     it('should have correct structure', () => {
       expect(plugin).toMatchObject({
@@ -215,7 +148,6 @@ describe('Plugin: xfi-example-plugin', () => {
         version: '1.0.0',
         operators: expect.any(Array),
         facts: expect.any(Array),
-        sampleRules: expect.any(Array),
         onError: expect.any(Function)
       });
       
@@ -229,22 +161,27 @@ describe('Plugin: xfi-example-plugin', () => {
       (pluginError as any).level = 'warning';
       (pluginError as any).details = { test: true };
 
-      const result = plugin.onError(pluginError);
-      expect(result).toEqual({
-        level: 'warning',
-        message: 'Test error',
-        details: { test: true }
-      });
+      if (plugin.onError) {
+        const result = plugin.onError(pluginError);
+        expect(result).toEqual({
+          level: 'warning',
+          message: 'Test error',
+          details: { test: true }
+        });
+      }
     });
 
     it('should handle non-plugin errors as fatal', () => {
       const error = new Error('Regular error');
-      const result = plugin.onError(error);
-      expect(result).toEqual({
-        level: 'fatality',
-        message: 'Regular error',
-        details: error.stack
-      });
+      let result;
+      if (plugin.onError) {
+        result = plugin.onError(error);
+        expect(result).toEqual({
+          level: 'fatality',
+          message: 'Regular error',
+          details: error.stack
+        });
+      }
     });
   });
 });
