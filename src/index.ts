@@ -3,6 +3,7 @@ import { logger } from 'x-fidelity';
 import { version } from '../package.json';
 import { regexExtractOperator } from './operators/regexExtract';
 import { externalCallFact } from './facts/externalApiCall';
+
 const plugin: XFiPlugin = {
   name: 'xfi-example-plugin',
   version,  // Use version from package.json
