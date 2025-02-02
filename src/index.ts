@@ -14,6 +14,7 @@ const plugin: XFiPlugin = {
     const level = isPluginError ? (error as any).level : 'fatality';
     
     const pluginError: PluginError = {
+      name: isPluginError ? (error as any).name || 'PluginError' : 'PluginError',
       message: isPluginError ? error.message : error.message,
       level,
       details: isPluginError ? (error as any).details : error.stack

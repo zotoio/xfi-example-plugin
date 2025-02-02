@@ -64,6 +64,7 @@ export const externalCallFact: FactDefn = {
 
     } catch (error) {
       const pluginError: PluginError = {
+        name: 'ApiCallError',
         message: 'API call failed',
         level: 'error',
         details: { 
