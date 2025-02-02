@@ -10,19 +10,21 @@ const plugin: XFiPlugin = {
   operators: [regexExtractOperator],
   facts: [externalCallFact],
   onError: (error: Error): PluginError => {
+    const isPluginError = (error as any).isPluginError;
+    const level = isPluginError ? (error as any).level : 'fatality';
     
     const pluginError: PluginError = {
-      message: 'error parsing rule file',
-      level: 'error',
-      details: { 
-        operation: 'loadRules',
-        stack: (error as Error).stack
-      }
+      message: isPluginError ? error.message : error.message,
+      level,
+      details: isPluginError ? (error as any).details : error.stack
     };
 
-    logger.error(pluginError, 'Plugin error occurred');
-    
-    // perform additional actions if needed
+    logger.error({ 
+      op: 'error',
+      err: error,
+      isPluginError,
+      level
+    }, 'Plugin error occurred');
 
     return pluginError;
   }

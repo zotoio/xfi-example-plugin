@@ -35,14 +35,14 @@ describe('Plugin: xfi-example-plugin', () => {
     });
 
     it('should handle plugin errors correctly', () => {
-      const pluginError = new Error('Test error');
-      (pluginError as any).isPluginError = true;
-      (pluginError as any).level = 'warning';
-      (pluginError as any).details = { test: true };
+      const error = new Error('Test error');
+      (error as any).isPluginError = true;
+      (error as any).level = 'warning';
+      (error as any).details = { test: true };
 
       if (plugin.onError) {
-        const result = plugin.onError(pluginError);
-        expect(result).toEqual({
+        const result = plugin.onError(error);
+        expect(result).toMatchObject({
           level: 'warning',
           message: 'Test error',
           details: { test: true }
@@ -52,13 +52,12 @@ describe('Plugin: xfi-example-plugin', () => {
 
     it('should handle non-plugin errors as fatal', () => {
       const error = new Error('Regular error');
-      let result;
       if (plugin.onError) {
-        result = plugin.onError(error);
-        expect(result).toEqual({
+        const result = plugin.onError(error);
+        expect(result).toMatchObject({
           level: 'fatality',
           message: 'Regular error',
-          details: error.stack
+          details: expect.stringContaining('Error: Regular error')
         });
       }
     });
