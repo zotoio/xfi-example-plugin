@@ -28,7 +28,7 @@
      ]                                                                                                                  
    },                                                                                                                   
    "event": {                                                                                                           
-     "type": "warning",                                                                                                 
+     "type": "fatality",                                                                                                 
      "params": {                                                                                                        
        "message": "External API validation failed",                                                                     
        "details": {                                                                                                     

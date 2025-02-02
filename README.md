@@ -5,7 +5,7 @@ This plugin enables x-fidelity to extract values from files using regex and vali
 ## Installation
 
 ```bash
-npm install xfi-external-api-plugin
+yarn add xfi-example-plugin
 ```
 
 ## Usage
@@ -13,7 +13,7 @@ npm install xfi-external-api-plugin
 Run x-fidelity with the plugin:
 
 ```bash
-xfidelity -e xfi-external-api-plugin
+xfidelity -e xfi-example-plugin
 ```
 
 ## Features
@@ -74,12 +74,12 @@ Makes HTTP calls to external APIs with extracted values for validation.
 
 1. Build the plugin:
 ```bash
-npm run build
+yarn build
 ```
 
 2. Run tests:
 ```bash
-npm test
+nyarnpm test
 ```
 
 ## Configuration

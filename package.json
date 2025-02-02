@@ -4,10 +4,11 @@
   "description": "Example plugin for x-fidelity demonstrating external API integration",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "module": "dist/index.js",
   "scripts": {
     "build": "tsc && cp -r src/rules dist/",
     "test": "jest",
-    "prepare": "npm run build"
+    "prepare": "yarn build"
   },
   "keywords": [
     "x-fidelity",

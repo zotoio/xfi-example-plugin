@@ -1,4 +1,4 @@
-import { regexExtractOperator } from '../regexExtract';
+import { regexExtractOperator } from './regexExtract';
 
 describe('regexExtract Operator', () => {
   const { fn: regexExtract } = regexExtractOperator;

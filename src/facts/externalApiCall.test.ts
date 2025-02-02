@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { externalCallFact } from '../externalApiCall';
+import { externalCallFact } from './externalApiCall';
 
 jest.mock('axios');
 
