@@ -57,7 +57,10 @@ describe('Plugin: xfi-example-plugin', () => {
         expect(result).toMatchObject({
           level: 'fatality',
           message: 'Regular error',
-          details: expect.stringContaining('Error: Regular error')
+          details: {
+            errorName: 'PluginError',
+            stack: expect.stringContaining('Error: Regular error')
+          }
         });
       }
     });
