@@ -1,5 +1,40 @@
-.aider*
-.env
+# IDE and OS files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Dependencies
 node_modules/
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.npmrc
+
+# Build outputs
 dist/
+build/
+.turbo/
+.next/
+*.tsbuildinfo
+.eslintcache
+
+# Test artifacts
+coverage/
+junit.xml
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Logs
 *.log
+
+# Development
+.aider*
