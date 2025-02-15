@@ -1,6 +1,6 @@
 # X‑Fidelity Plugins Monorepo Example
 
-This repository is a monorepo example demonstrating how to extend the [x‑fidelity](https://github.com/x-fidelity) framework with custom plugins. It is organized using Yarn workspaces, where each package implements a plugin that integrates seamlessly into the x‑fidelity ecosystem.
+This repository is a monorepo example demonstrating how to extend the [x‑fidelity](https://github.com/x-fidelity) framework (v3 and above) with custom plugins. It is organized using Yarn workspaces, where each package implements a plugin that integrates seamlessly into the x‑fidelity ecosystem.
 
 ## Repository Structure
 
@@ -53,10 +53,10 @@ Run the tests for all plugins:
 yarn test
 ```
 
-### Lint
-To run linting on the code:
+To run x-fidelity including these plugins and rules locally, you can run:
+
 ```bash
-yarn lint
+xfidelity . --localConfigPath demoConfig/ --extensions @xfi-plugins/api-validator @xfi-plugins/security-scanner @xfi-plugins/performance-check
 ```
 
 ## Extending x‑Fidelity
