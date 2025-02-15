@@ -13,5 +13,6 @@
     "@xfi-plugins/common": "workspace:*",
     "axios": "^1.7.8",
     "x-fidelity": "^2.17.2"
-  }
+  },
+  "license": "MIT"
 }
