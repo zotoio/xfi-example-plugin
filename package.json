@@ -10,7 +10,7 @@
     "lint": "eslint src/**/*.ts"
   },
   "dependencies": {
-    "@xfi-plugins/common": "workspace:*",
+    "@xfi-plugins/common": "*",
     "axios": "^1.7.8",
     "x-fidelity": "^2.17.2"
   },

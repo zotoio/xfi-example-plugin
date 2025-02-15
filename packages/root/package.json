@@ -1,5 +1,5 @@
 {
-  "name": "xfi-plugins",
+  "name": "xfi-plugins-root",
   "private": true,
   "workspaces": [
     "packages/*"
