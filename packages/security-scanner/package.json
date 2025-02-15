@@ -3,13 +3,14 @@
   "version": "1.0.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "license": "MIT",
   "scripts": {
     "build": "tsc",
     "test": "jest",
     "lint": "eslint src/**/*.ts"
   },
   "dependencies": {
-    "x-fidelity": "^1.0.0"
+    "x-fidelity": "^2.17.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

@@ -1,8 +1,9 @@
 {
-  "name": "@xfi-plugins/common",
+  "name": "@xfi-plugins/api-validator",
   "private": true,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "version": "1.0.0",
   "scripts": {
     "build": "tsc",
     "test": "jest",

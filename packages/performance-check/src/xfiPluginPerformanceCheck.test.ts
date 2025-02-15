@@ -1,5 +1,4 @@
-import plugin from './index';
-import type { XFiPlugin } from 'x-fidelity';
+import { plugin } from './xfiPluginPerformanceCheck';
 
 // Mock x-fidelity
 jest.mock('x-fidelity', () => {
@@ -18,13 +17,13 @@ jest.mock('x-fidelity', () => {
 // Import after mocking
 import { logger } from 'x-fidelity';
 
-describe('Plugin: xfi-example-plugin', () => {
+describe('Plugin: xfiPluginPerformanceCheck', () => {
 
   describe('Plugin Configuration', () => {
     it('should have correct structure', () => {
       expect(plugin).toMatchObject({
-        name: 'xfi-example-plugin',
-        version: '1.0.0',
+        name: 'xfiPluginPerformanceCheck',
+        version: expect.any(String),
         operators: expect.any(Array),
         facts: expect.any(Array),
         onError: expect.any(Function)

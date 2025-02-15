@@ -1,13 +1,14 @@
-import { logger, PluginError, XFiPlugin } from 'x-fidelity';
+import type { PluginError, XFiPlugin } from 'x-fidelity';
+import { logger } from 'x-fidelity';
 import { version } from '../package.json';
-import { responseTimeFact } from './facts/responseTime';
-import { thresholdCheckOperator } from './operators/thresholdCheck';
+import { regexExtractOperator } from './operators/regexExtract';
+import { externalCallFact } from './facts/externalApiCall';
 
 const plugin: XFiPlugin = {
-  name: 'xfiPluginPerformanceCheck',
-  version,
-  facts: [responseTimeFact],
-  operators: [thresholdCheckOperator],
+  name: 'xfiPluginApiValidator',
+  version,  // Use version from package.json
+  operators: [regexExtractOperator],
+  facts: [externalCallFact],
   onError: (error: Error): PluginError => {
     const isPluginError = (error as any).isPluginError;
     const level = isPluginError ? (error as any).level : 'fatality';

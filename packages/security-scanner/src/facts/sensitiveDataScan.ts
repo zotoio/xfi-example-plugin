@@ -26,11 +26,11 @@ export const sensitiveDataScanFact: FactDefn = {
       const fileContent = fileData.fileContent;
       logger.debug({ op: 'sensitiveDataScan', contentLength: fileContent.length }, 'file content loaded');
       
-      const patterns = params.patterns || DEFAULT_PATTERNS;
+      const patterns: Record<string, string | RegExp> = params.patterns || DEFAULT_PATTERNS;
       const findings: any[] = [];
 
-      Object.entries(patterns).forEach(([type, pattern]) => {
-        const regex = new RegExp(pattern);
+      Object.entries(patterns).forEach(([type, pattern]: [string, string | RegExp]) => {
+        const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
         const matches = fileContent.match(regex);
         
         if (matches) {
