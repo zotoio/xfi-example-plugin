@@ -1,0 +1,29 @@
+{
+  "name": "performance-check",
+  "conditions": {
+    "all": [
+      {
+        "fact": "responseTime",
+        "params": {
+          "url": "https://api.example.com/health",
+          "timeout": 5000,
+          "headers": {
+            "Content-Type": "application/json"
+          }
+        },
+        "operator": "thresholdCheck",
+        "value": 1000
+      }
+    ]
+  },
+  "event": {
+    "type": "fatality",
+    "params": {
+      "message": "API response time exceeded threshold",
+      "details": {
+        "fact": "responseTime",
+        "threshold": "1000ms"
+      }
+    }
+  }
+}
