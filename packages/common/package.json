@@ -1,17 +1,15 @@
 {
-  "name": "@xfi-plugins/api-validator",
+  "name": "@xfi-plugins/common",
   "version": "1.0.0",
-  "description": "API validation plugin for x-fidelity",
+  "private": false,
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc && cp -r src/rules dist/",
+    "build": "tsc",
     "test": "jest",
     "lint": "eslint src/**/*.ts"
   },
   "dependencies": {
-    "@xfi-plugins/common": "workspace:*",
-    "axios": "^1.7.8",
     "x-fidelity": "^2.17.2"
   }
 }
