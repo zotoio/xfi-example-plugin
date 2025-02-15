@@ -12,7 +12,7 @@ export const securityRuleCheckOperator: OperatorDefn = {
 
     // If threshold is a number, check against findings count
     if (typeof threshold === 'number') {
-      const result = scanResult.findings.length <= threshold;
+      const result = scanResult.findings.length >= threshold;
       logger.debug({ 
         op: 'securityRuleCheck',
         findingsCount: scanResult.findings.length,

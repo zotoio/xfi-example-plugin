@@ -1,0 +1,39 @@
+{
+    "name": "node-fullstack",
+    "rules": [
+        "apiValidator-iterative",
+        "performance-check-global",
+        "security-scan-iterative"
+    ],
+    "operators": [
+        "fileContains",
+        "regexExtract",
+        "securityRuleCheck",
+        "thresholdCheck"
+    ],
+    "facts": [
+        "repoFilesystemFacts",
+        "sensitiveDataScan",
+        "responseTimeFact",
+        "externalCallFact"
+    ],
+    "config": {
+        "minimumDependencyVersions": {
+            "x-fidelity": ">=2.0.0"
+        },    
+        "standardStructure": {
+            "packages": {
+                "api-validator": null
+            }
+        },
+        "blacklistPatterns": [
+            ".*\\/\\..*",
+            ".*\\.(log|lock)$",
+            ".*\\/(dist|coverage|build|node_modules)(\\/.*|$)"
+        ],
+        "whitelistPatterns": [
+            ".*\\.(ts|tsx|js|jsx)$",
+            ".*\\/xfiTestMatch\\.json$"
+        ]
+    }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "security-scan",
+  "conditions": {
+    "all": [
+      {
+        "fact": "sensitiveDataScan",
+        "params": {
+          "patterns": {
+            "apiKey": "(['\"](api[_-]?key|api[_-]?token)['\"]:?\\s*['\"](\\w+)['\"])",
+            "password": "(['\"](password|secret)['\"]:?\\s*['\"](\\w+)['\"])",
+            "privateKey": "-----BEGIN [A-Z ]+ PRIVATE KEY-----"
+          }
+        },
+        "operator": "securityRuleCheck",
+        "value": {
+          "apiKey": false,
+          "password": false,
+          "privateKey": false
+        }
+      }
+    ]
+  },
+  "event": {
+    "type": "fatality",
+    "params": {
+      "message": "Sensitive data detected in repository",
+      "details": {
+        "fact": "sensitiveDataScan",
+        "rules": "No sensitive data allowed"
+      }
+    }
+  }
+}
