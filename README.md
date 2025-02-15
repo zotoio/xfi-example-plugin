@@ -66,7 +66,7 @@ This monorepo serves as a template for developing new plugins:
 - **Define Facts & Operators:** Implement your logic inside your plugin to extract data or perform validations, ensuring you also provide an `onError` function.
 - **Update Configurations:** Add your new facts and operators to a demo configuration (similar to those in `demoConfig/`) to see them in action.
 
-For more details on plugin development, refer to the [x‑fidelity documentation](https://github.com/x-fidelity).
+For more details on plugin development, refer to the [x‑fidelity documentation](https://github.com/zotoio/x-fidelity).
 
 ## Conclusion
 
