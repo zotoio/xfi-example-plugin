@@ -10,7 +10,7 @@
     "lint": "eslint src/**/*.ts"
   },
   "dependencies": {
-    "x-fidelity": "^2.17.2"
+    "x-fidelity": "^3.0.2"
   },
   "license": "MIT"
 }
