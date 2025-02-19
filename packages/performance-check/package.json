@@ -10,8 +10,10 @@
     "lint": "eslint src/**/*.ts"
   },
   "dependencies": {
-    "axios": "^1.6.0",
-    "x-fidelity": "^3.0.2"
+    "axios": "^1.6.0"
+  },
+  "peerDependencies": {
+    "x-fidelity": "^3.0.3"
   },
   "devDependencies": {
     "@types/jest": "^29.5.12",

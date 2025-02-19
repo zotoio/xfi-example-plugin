@@ -9,8 +9,8 @@
     "test": "jest",
     "lint": "eslint src/**/*.ts"
   },
-  "dependencies": {
-    "x-fidelity": "^3.0.2"
+  "peerDependencies": {
+    "x-fidelity": "^3.0.3"
   },
   "license": "MIT"
 }
