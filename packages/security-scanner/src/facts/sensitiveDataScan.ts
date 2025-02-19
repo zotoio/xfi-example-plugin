@@ -16,7 +16,11 @@ export const sensitiveDataScanFact: FactDefn = {
       const fileData = await almanac.factValue('fileData');
       if (!fileData) {
         logger.warn({ op: 'sensitiveDataScan' }, 'no file data available');
-        return false
+        return { 
+          success: false, 
+          error: 'No file data available',
+          timestamp: new Date().toISOString()
+        };
       }
       
       const fileContent = fileData.fileContent;
@@ -44,10 +48,17 @@ export const sensitiveDataScanFact: FactDefn = {
       }, 'scan complete');
 
       if (findings.length === 0) {
-        return false
-      } else {
-        return true;
+        return {
+          success: true,
+          findings: [],
+          timestamp: new Date().toISOString()
+        };
       }
+      return {
+        success: true,
+        findings,
+        timestamp: new Date().toISOString()
+      };
 
     } catch (error) {
       const pluginError: PluginError = {

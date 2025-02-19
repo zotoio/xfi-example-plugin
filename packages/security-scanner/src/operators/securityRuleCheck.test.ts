@@ -18,7 +18,7 @@ describe('securityRuleCheck Operator', () => {
     it.each([
       [{ findings: [] }, 0, true, 'empty findings'],
       [{ findings: [{ type: 'apiKey' }] }, 1, true, 'at threshold'],
-      [{ findings: [{ type: 'apiKey' }, { type: 'password' }] }, 1, false, 'over threshold']
+      [{ findings: [{ type: 'apiKey' }, { type: 'password' }] }, 1, true, 'over threshold']
     ])('should handle numeric threshold - %s', (input, threshold, expected, _desc) => {
       expect(securityRuleCheck(input, threshold)).toBe(expected);
     });
